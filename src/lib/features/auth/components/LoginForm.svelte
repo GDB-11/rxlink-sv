@@ -1,14 +1,14 @@
 <!-- src/lib/features/auth/components/LoginForm.svelte -->
-<!-- Responsibility: own form state, call the login API, and compose the form UI components -->
+
 <script lang="ts">
-	import { goto }            from '$app/navigation';
-	import ErrorAlert          from '$lib/components/ui/ErrorAlert.svelte';
-	import PasswordField from '$lib/components/ui/PasswordField.svelte';
-	import SubmitButton        from '$lib/components/ui/SubmitButton.svelte';
-	import UsernameField from '$lib/components/ui/UsernameField.svelte';
-	import { auth }            from '$lib/features/auth';
-	import type { LoginResponse } from '$lib/features/auth';
-	import LoginFormHeading    from './LoginFormHeading.svelte';
+	import { goto }              from '$app/navigation';
+	import { authApi, ApiError } from '$lib/api/authApi';
+	import { auth }              from '$lib/features/auth';
+	import ErrorAlert            from '$lib/components/ui/ErrorAlert.svelte';
+	import PasswordField         from '$lib/components/ui/PasswordField.svelte';
+	import SubmitButton          from '$lib/components/ui/SubmitButton.svelte';
+	import UsernameField         from '$lib/components/ui/UsernameField.svelte';
+	import LoginFormHeading      from './LoginFormHeading.svelte';
 
 	let username  = $state('');
 	let password  = $state('');
@@ -27,26 +27,15 @@
 		error = null;
 
 		try {
-			const response = await fetch('/api/auth/login', {
-				method:  'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body:    JSON.stringify({ Username: username.trim(), Password: password })
-			});
-
-			if (!response.ok) {
-				const data = await response.json().catch(() => ({}));
-				error =
-					response.status === 401
-						? 'Usuario o contraseña incorrectos.'
-						: (data.message ?? 'Error al iniciar sesión. Intente nuevamente.');
-				return;
-			}
-
-			const data: LoginResponse = await response.json();
+			const data = await authApi.login(username.trim(), password);
 			auth.login(data);
 			await goto('/');
-		} catch {
-			error = 'Error de conexión. Verifique su red e intente nuevamente.';
+		} catch (err) {
+			if (err instanceof ApiError) {
+				error = err.message || 'Error al iniciar sesión. Intente nuevamente.';
+			} else {
+				error = 'Error de conexión. Verifique su red e intente nuevamente.';
+			}
 		} finally {
 			isLoading = false;
 		}
