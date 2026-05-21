@@ -1,6 +1,34 @@
 // src/lib/api/api.ts
 
+import { browser } from '$app/environment';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { auth } from '$lib/features/auth/stores/auth.svelte';
+import type { LoginResponse } from './authApi';
+
+let isRefreshing = false;
+let refreshQueue: Array<(token: string | null) => void> = [];
+
+async function attemptRefresh(): Promise<string> {
+    const refreshToken = auth.getRefreshToken();
+    if (!refreshToken) throw new Error('No refresh token');
+
+    const res = await fetch(`${PUBLIC_API_BASE_URL}/api/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ RefreshToken: refreshToken })
+    });
+
+    if (!res.ok) throw new ApiError(res.status, 'Token refresh failed');
+
+    const data = (await res.json()) as LoginResponse;
+    auth.login(data);
+    return data.accessToken;
+}
+
+function drainQueue(token: string | null) {
+    refreshQueue.forEach(cb => cb(token));
+    refreshQueue = [];
+}
 
 async function request<T>(
     path: string,
@@ -8,18 +36,50 @@ async function request<T>(
 ): Promise<T> {
     const url = `${PUBLIC_API_BASE_URL}${path}`;
 
-    const response = await fetch(url, {
-        ...init,
-        headers: {
-            'Content-Type': 'application/json',
-            ...init.headers
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(init.headers as Record<string, string>)
+    };
+
+    if (auth.accessToken && !headers['Authorization']) {
+        headers['Authorization'] = `Bearer ${auth.accessToken}`;
+    }
+
+    let response = await fetch(url, { ...init, headers });
+
+    if (response.status === 401 && auth.getRefreshToken()) {
+        let newToken: string | null;
+
+        if (isRefreshing) {
+            newToken = await new Promise<string | null>(resolve => {
+                refreshQueue.push(resolve);
+            });
+        } else {
+            isRefreshing = true;
+            try {
+                newToken = await attemptRefresh();
+                drainQueue(newToken);
+            } catch {
+                drainQueue(null);
+                if (browser) {
+                    auth.logout();
+                    window.location.href = '/login';
+                }
+                throw new ApiError(401, 'Session expired');
+            } finally {
+                isRefreshing = false;
+            }
         }
-    });
+
+        if (!newToken) throw new ApiError(401, 'Session expired');
+
+        headers['Authorization'] = `Bearer ${newToken}`;
+        response = await fetch(url, { ...init, headers });
+    }
 
     if (!response.ok) {
         const body = await response.json().catch(() => ({})) as { message?: string };
-        const message = body.message ?? response.statusText;
-        throw new ApiError(response.status, message);
+        throw new ApiError(response.status, body.message ?? response.statusText);
     }
 
     if (response.status === 204) {
