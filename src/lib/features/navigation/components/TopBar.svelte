@@ -52,7 +52,7 @@
     <!-- Mobile: hamburger -->
     <button
         class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
-               text-stone-500 transition-colors hover:bg-stone-100
+               text-stone-500 transition-colors hover:bg-stone-100 cursor-pointer
                dark:text-stone-400 dark:hover:bg-stone-800"
         onclick={onToggleSidebar}
         aria-label={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -99,7 +99,7 @@
                 {@const isActive = navigation.activeModuleCode === mod.moduleCode}
                 <button
                     onclick={() => navigation.setActiveModule(mod.moduleCode)}
-                    class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm
+                    class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm cursor-pointer
                            font-medium whitespace-nowrap transition-colors duration-150
                            {isActive
                                ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300'
@@ -133,7 +133,7 @@
         <button
             onclick={onLogout}
             disabled={loggingOut}
-            class="hidden items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm
+            class="hidden items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm cursor-pointer
                    text-stone-600 transition-colors duration-150
                    hover:bg-rose-50 hover:text-rose-700
                    disabled:cursor-not-allowed disabled:opacity-50

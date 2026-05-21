@@ -67,7 +67,7 @@
 			class="absolute inset-y-0 right-0 flex items-center pr-3.5
                    text-stone-400 transition-colors
                    duration-150 hover:text-stone-600
-                   disabled:cursor-not-allowed
+                   disabled:cursor-not-allowed cursor-pointer
                    dark:text-stone-500 dark:hover:text-stone-300"
 		>
 			{#if showPassword}
