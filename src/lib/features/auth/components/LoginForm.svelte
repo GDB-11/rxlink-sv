@@ -29,7 +29,7 @@
 		try {
 			const data = await authApi.login(username.trim(), password);
 			auth.login(data);
-			await goto('/');
+			await goto('/inicio');
 		} catch (err) {
 			if (err instanceof ApiError) {
 				error = err.message || 'Error al iniciar sesión. Intente nuevamente.';

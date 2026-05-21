@@ -15,7 +15,6 @@ interface LogoutRequest {
     RefreshToken: string;
 }
 
-
 export interface UserInfo {
     userCode: string;
     username: string;

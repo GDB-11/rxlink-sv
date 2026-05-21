@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@tabler/icons-svelte':
+        specifier: ^3.44.0
+        version: 3.44.0(svelte@5.55.7(@typescript-eslint/types@8.59.3))
     devDependencies:
       '@eslint/compat':
         specifier: ^2.0.4
@@ -315,6 +319,14 @@ packages:
     peerDependencies:
       svelte: ^5.46.4
       vite: ^8.0.0-beta.7 || ^8.0.0
+
+  '@tabler/icons-svelte@3.44.0':
+    resolution: {integrity: sha512-ZJJMCHoqpvb9hLVn9dU+pn8LCdX/e+mJ/fC+EUaJT5nHEm0+IW4aKKYkYQI+rFMzN8ivj36MnMC5TGFi4H6zew==}
+    peerDependencies:
+      svelte: '>=3 <6 || >=5.0.0-next.0'
+
+  '@tabler/icons@3.44.0':
+    resolution: {integrity: sha512-Wn0AOZG9sg0L+bjfMqq4eNhC6pQjIrk94LvvWYNYkY8KH8wC3YILRzQlrnVJc4FUeMxH/AK97QsYCX35H3LndA==}
 
   '@tailwindcss/forms@0.5.11':
     resolution: {integrity: sha512-h9wegbZDPurxG22xZSoWtdzc41/OlNEUQERNqI/0fOwa2aVlWGu7C35E/x6LDyD3lgtztFSSjKZyuVM0hxhbgA==}
@@ -1394,6 +1406,13 @@ snapshots:
       svelte: 5.55.7(@typescript-eslint/types@8.59.3)
       vite: 8.0.13(@types/node@24.12.4)(jiti@2.7.0)
       vitefu: 1.1.3(vite@8.0.13(@types/node@24.12.4)(jiti@2.7.0))
+
+  '@tabler/icons-svelte@3.44.0(svelte@5.55.7(@typescript-eslint/types@8.59.3))':
+    dependencies:
+      '@tabler/icons': 3.44.0
+      svelte: 5.55.7(@typescript-eslint/types@8.59.3)
+
+  '@tabler/icons@3.44.0': {}
 
   '@tailwindcss/forms@0.5.11(tailwindcss@4.3.0)':
     dependencies:
