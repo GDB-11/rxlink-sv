@@ -1,6 +1,6 @@
 <!-- src/lib/features/medications/components/MedicationTable.svelte -->
 <script lang="ts">
-    import { IconPencil, IconBan } from '@tabler/icons-svelte';
+    import { IconPencil, IconBan, IconCircleCheck } from '@tabler/icons-svelte';
     import type { MedicationResponse } from '$lib/api/medicationsApi';
     import MedicationStatusBadge from './MedicationStatusBadge.svelte';
 
@@ -9,8 +9,9 @@
         loading: boolean;
         onEdit: (item: MedicationResponse) => void;
         onDeactivate: (item: MedicationResponse) => void;
+        onActivate: (item: MedicationResponse) => void;
     }
-    let { items, loading, onEdit, onDeactivate }: Props = $props();
+    let { items, loading, onEdit, onDeactivate, onActivate }: Props = $props();
 
     const skeletonRows = [1, 2, 3, 4, 5];
 </script>
@@ -118,6 +119,17 @@
                                         aria-label="Desactivar {item.genericName}"
                                     >
                                         <IconBan size={16} aria-hidden="true" />
+                                    </button>
+                                {:else}
+                                    <button
+                                        type="button"
+                                        onclick={() => onActivate(item)}
+                                        class="cursor-pointer rounded-lg p-1.5 text-stone-500 transition-colors
+                                               hover:bg-teal-50 hover:text-teal-700
+                                               dark:text-stone-400 dark:hover:bg-teal-900/30 dark:hover:text-teal-400"
+                                        aria-label="Activar {item.genericName}"
+                                    >
+                                        <IconCircleCheck size={16} aria-hidden="true" />
                                     </button>
                                 {/if}
                             </div>

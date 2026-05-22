@@ -50,5 +50,9 @@ export const medicationsApi = {
 
     deactivate(code: string): Promise<void> {
         return api.patch<void>(`/api/medications/${code}/deactivate`, {});
+    },
+
+    activate(code: string): Promise<void> {
+        return api.patch<void>(`/api/medications/${code}/activate`, {});
     }
 };

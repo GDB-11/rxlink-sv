@@ -9,6 +9,7 @@
     import MedicationPagination from '$lib/features/medications/components/MedicationPagination.svelte';
     import MedicationForm from '$lib/features/medications/components/MedicationForm.svelte';
     import DeactivateConfirmModal from '$lib/features/medications/components/DeactivateConfirmModal.svelte';
+    import ActivateConfirmModal from '$lib/features/medications/components/ActivateConfirmModal.svelte';
 
     let formOpen = $state(false);
     let formMode = $state<'create' | 'edit'>('create');
@@ -16,6 +17,9 @@
 
     let confirmOpen = $state(false);
     let deactivateTarget = $state<MedicationResponse | null>(null);
+
+    let activateOpen = $state(false);
+    let activateTarget = $state<MedicationResponse | null>(null);
 
     onMount(() => medications.loadPage());
 
@@ -39,6 +43,12 @@
         confirmOpen = true;
     }
 
+    function openActivate(item: MedicationResponse) {
+        activateTarget = item;
+        medications.clearSubmitError();
+        activateOpen = true;
+    }
+
     async function handleFormSubmit(data: MedicationRequestBody) {
         const success =
             formMode === 'create'
@@ -51,6 +61,12 @@
         if (!deactivateTarget) return;
         const success = await medications.deactivate(deactivateTarget.medicationCode);
         if (success) confirmOpen = false;
+    }
+
+    async function handleActivate() {
+        if (!activateTarget) return;
+        const success = await medications.activate(activateTarget.medicationCode);
+        if (success) activateOpen = false;
     }
 </script>
 
@@ -103,6 +119,7 @@
     loading={medications.loading}
     onEdit={openEdit}
     onDeactivate={openDeactivate}
+    onActivate={openActivate}
 />
 
 <!-- Pagination -->
@@ -140,4 +157,14 @@
     error={medications.submitError}
     onconfirm={handleDeactivate}
     oncancel={() => (confirmOpen = false)}
+/>
+
+<!-- Activate confirmation modal -->
+<ActivateConfirmModal
+    open={activateOpen}
+    medicationName={activateTarget?.genericName ?? ''}
+    submitting={medications.submitting}
+    error={medications.submitError}
+    onconfirm={handleActivate}
+    oncancel={() => (activateOpen = false)}
 />

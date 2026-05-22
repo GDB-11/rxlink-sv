@@ -125,6 +125,21 @@ export const medications = {
         }
     },
 
+    async activate(code: string): Promise<boolean> {
+        _submitting = true;
+        _submitError = null;
+        try {
+            await medicationsApi.activate(code);
+            await this.loadPage();
+            return true;
+        } catch (err) {
+            _submitError = err instanceof Error ? err.message : 'Error al activar medicamento.';
+            return false;
+        } finally {
+            _submitting = false;
+        }
+    },
+
     clearSubmitError(): void {
         _submitError = null;
     }
