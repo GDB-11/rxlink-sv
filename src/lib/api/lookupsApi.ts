@@ -7,13 +7,29 @@ export interface LookupItemResponse {
     name: string;
 }
 
+export interface GuidLookupItemResponse {
+    code: string;
+    name: string;
+}
+
 export interface MedicationLookupsResponse {
-    pharmaceuticalForms:  LookupItemResponse[];
+    pharmaceuticalForms: LookupItemResponse[];
     administrationRoutes: LookupItemResponse[];
+}
+
+export interface UserLookupsResponse {
+    sexes: GuidLookupItemResponse[];
+    documentTypes: GuidLookupItemResponse[];
+    roles: GuidLookupItemResponse[];
+    specialties: GuidLookupItemResponse[];
 }
 
 export const lookupsApi = {
     getMedicationLookups(): Promise<MedicationLookupsResponse> {
         return api.get<MedicationLookupsResponse>('/api/lookups/medications');
+    },
+
+    getUserLookups(): Promise<UserLookupsResponse> {
+        return api.get<UserLookupsResponse>('/api/lookups/users');
     }
 };
