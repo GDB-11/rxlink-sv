@@ -1,6 +1,6 @@
 // src/lib/features/medications/stores/medications.svelte.ts
 
-import { medicationsApi, type MedicationResponse, type MedicationRequestBody } from '$lib/api/medicationsApi';
+import { medicationApi, type MedicationResponse, type MedicationRequestBody } from '$lib/api/medicationApi';
 import { lookupsApi } from '$lib/api/lookupsApi';
 
 export interface LookupItem {
@@ -45,7 +45,7 @@ export const medications = {
 
         try {
             const [pageData] = await Promise.all([
-                medicationsApi.getPage(_page, _pageSize, _search || undefined),
+                medicationApi.getPage(_page, _pageSize, _search || undefined),
                 lookupsPromise
             ]);
             _items = pageData.items;
@@ -84,7 +84,7 @@ export const medications = {
         _submitting = true;
         _submitError = null;
         try {
-            await medicationsApi.create(body);
+            await medicationApi.create(body);
             await this.loadPage();
             return true;
         } catch (err) {
@@ -99,7 +99,7 @@ export const medications = {
         _submitting = true;
         _submitError = null;
         try {
-            await medicationsApi.update(code, body);
+            await medicationApi.update(code, body);
             await this.loadPage();
             return true;
         } catch (err) {
@@ -114,7 +114,7 @@ export const medications = {
         _submitting = true;
         _submitError = null;
         try {
-            await medicationsApi.deactivate(code);
+            await medicationApi.deactivate(code);
             await this.loadPage();
             return true;
         } catch (err) {
@@ -129,7 +129,7 @@ export const medications = {
         _submitting = true;
         _submitError = null;
         try {
-            await medicationsApi.activate(code);
+            await medicationApi.activate(code);
             await this.loadPage();
             return true;
         } catch (err) {

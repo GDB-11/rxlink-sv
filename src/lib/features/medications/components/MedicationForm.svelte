@@ -1,6 +1,6 @@
 <!-- src/lib/features/medications/components/MedicationForm.svelte -->
 <script lang="ts">
-    import type { MedicationResponse, MedicationRequestBody } from '$lib/api/medicationsApi';
+    import type { MedicationResponse, MedicationRequestBody } from '$lib/api/medicationApi';
     import type { LookupItem } from '../stores/medications.svelte';
     import MedicationFormBody from './MedicationFormBody.svelte';
 

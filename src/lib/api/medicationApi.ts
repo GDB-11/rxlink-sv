@@ -30,29 +30,29 @@ export interface MedicationRequestBody {
     Concentration: string;
 }
 
-export const medicationsApi = {
+export const medicationApi = {
     getPage(page: number, pageSize: number, search?: string): Promise<MedicationPageResponse> {
         const params = new URLSearchParams({
             page: String(page),
             pageSize: String(pageSize)
         });
         if (search?.trim()) params.set('search', search.trim());
-        return api.get<MedicationPageResponse>(`/api/medications?${params}`);
+        return api.get<MedicationPageResponse>(`/api/medication?${params}`);
     },
 
     create(body: MedicationRequestBody): Promise<MedicationResponse> {
-        return api.post<MedicationResponse>('/api/medications', body);
+        return api.post<MedicationResponse>('/api/medication', body);
     },
 
     update(code: string, body: MedicationRequestBody): Promise<MedicationResponse> {
-        return api.put<MedicationResponse>(`/api/medications/${code}`, body);
+        return api.put<MedicationResponse>(`/api/medication/${code}`, body);
     },
 
     deactivate(code: string): Promise<void> {
-        return api.patch<void>(`/api/medications/${code}/deactivate`, {});
+        return api.patch<void>(`/api/medication/${code}/deactivate`, {});
     },
 
     activate(code: string): Promise<void> {
-        return api.patch<void>(`/api/medications/${code}/activate`, {});
+        return api.patch<void>(`/api/medication/${code}/activate`, {});
     }
 };

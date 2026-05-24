@@ -2,7 +2,7 @@
 <!-- Mounted fresh on every open via {#key} in MedicationForm — no $effect needed. -->
 <script lang="ts">
     import { untrack } from 'svelte';
-    import type { MedicationResponse, MedicationRequestBody } from '$lib/api/medicationsApi';
+    import type { MedicationResponse, MedicationRequestBody } from '$lib/api/medicationApi';
     import type { LookupItem } from '../stores/medications.svelte';
 
     interface Props {

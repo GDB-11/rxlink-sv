@@ -1,7 +1,7 @@
 <!-- src/lib/features/medications/components/MedicationTable.svelte -->
 <script lang="ts">
     import { IconPencil, IconBan, IconCircleCheck } from '@tabler/icons-svelte';
-    import type { MedicationResponse } from '$lib/api/medicationsApi';
+    import type { MedicationResponse } from '$lib/api/medicationApi';
     import MedicationStatusBadge from './MedicationStatusBadge.svelte';
 
     interface Props {

@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { IconPlus } from '@tabler/icons-svelte';
     import { medications } from '$lib/features/medications';
-    import type { MedicationResponse, MedicationRequestBody } from '$lib/api/medicationsApi';
+    import type { MedicationResponse, MedicationRequestBody } from '$lib/api/medicationApi';
     import MedicationSearchBar from '$lib/features/medications/components/MedicationSearchBar.svelte';
     import MedicationTable from '$lib/features/medications/components/MedicationTable.svelte';
     import MedicationPagination from '$lib/features/medications/components/MedicationPagination.svelte';
