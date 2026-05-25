@@ -1,4 +1,4 @@
-<!-- src/lib/features/allergies/components/AllergyPagination.svelte -->
+<!-- src/lib/features/specialties/components/SpecialtyPagination.svelte -->
 <script lang="ts">
     import { IconChevronLeft, IconChevronRight } from '@tabler/icons-svelte';
 
@@ -45,7 +45,7 @@
             Anterior
         </button>
 
-        <span class="min-w-16 text-center text-sm font-medium text-stone-700 dark:text-stone-300">
+        <span class="min-w-[4rem] text-center text-sm font-medium text-stone-700 dark:text-stone-300">
             {page} / {totalPages}
         </span>
 
