@@ -9,7 +9,7 @@
     }
     let { value = '', disabled = false, onsearch }: Props = $props();
 
-    let inputValue = $state(value);
+    let inputValue = $state('');
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     function handleInput(e: Event) {

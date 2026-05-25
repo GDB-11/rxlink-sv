@@ -24,7 +24,9 @@
     });
 
     beforeNavigate(({ to }) => {
-        sidebarOpen = false;
+        if (window.innerWidth < 768) {
+            sidebarOpen = false;
+        }
         if (to?.url.pathname) {
             navigation.resolveActiveModule(to.url.pathname);
         }
