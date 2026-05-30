@@ -51,8 +51,7 @@
     };
 
     function isActive(path: string): boolean {
-        if (path === '/') return page.url.pathname === '/';
-        return page.url.pathname.startsWith(path);
+        return page.url.pathname === path;
     }
 
     function getInitials(fullName: string): string {
