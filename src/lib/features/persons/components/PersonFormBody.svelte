@@ -30,6 +30,8 @@
     let address               = $state(untrack(() => initial?.address ?? ''));
     let emergencyContactName  = $state(untrack(() => initial?.emergencyContactName ?? ''));
     let emergencyContactPhone = $state(untrack(() => initial?.emergencyContactPhone ?? ''));
+    let documentTypeCode      = $state(untrack(() => initial?.documentTypeCode ?? ''));
+    let documentNumber        = $state(untrack(() => initial?.documentNumber ?? ''));
 
     let fieldErrors = $state<Record<string, string>>({});
 
@@ -42,13 +44,15 @@
 
     function validate(): boolean {
         const e: Record<string, string> = {};
-        if (!names.trim())       e.names    = 'Los nombres son requeridos.';
-        if (!surnames.trim())    e.surnames  = 'Los apellidos son requeridos.';
-        if (!birthDate)          e.birthDate = 'La fecha de nacimiento es requerida.';
-        if (!sexCode)            e.sexCode   = 'Seleccione el sexo.';
-        if (!phone.trim())       e.phone     = 'El teléfono es requerido.';
-        if (!email.trim())       e.email     = 'El correo es requerido.';
-        else if (!emailRe.test(email.trim())) e.email = 'Ingrese un correo válido.';
+        if (!names.trim())           e.names           = 'Los nombres son requeridos.';
+        if (!surnames.trim())        e.surnames         = 'Los apellidos son requeridos.';
+        if (!birthDate)              e.birthDate        = 'La fecha de nacimiento es requerida.';
+        if (!sexCode)                e.sexCode          = 'Seleccione el sexo.';
+        if (!documentTypeCode)       e.documentTypeCode = 'Seleccione el tipo de documento.';
+        if (!documentNumber.trim())  e.documentNumber   = 'El número de documento es requerido.';
+        if (!phone.trim())           e.phone            = 'El teléfono es requerido.';
+        if (!email.trim())           e.email            = 'El correo es requerido.';
+        else if (!emailRe.test(email.trim())) e.email   = 'Ingrese un correo válido.';
         fieldErrors = e;
         return Object.keys(e).length === 0;
     }
@@ -58,16 +62,18 @@
         if (!validate()) return;
 
         onsubmit({
-            Names:                names.trim(),
-            Surnames:             surnames.trim(),
-            BirthDate:            birthDate,
-            SexCode:              sexCode,
-            Phone:                phone.trim(),
-            AlternativePhone:     alternativePhone.trim() || null,
-            Email:                email.trim(),
-            Address:              address.trim() || null,
+            Names:                 names.trim(),
+            Surnames:              surnames.trim(),
+            BirthDate:             birthDate,
+            SexCode:               sexCode,
+            Phone:                 phone.trim(),
+            AlternativePhone:      alternativePhone.trim() || null,
+            Email:                 email.trim(),
+            Address:               address.trim() || null,
             EmergencyContactName:  emergencyContactName.trim() || null,
-            EmergencyContactPhone: emergencyContactPhone.trim() || null
+            EmergencyContactPhone: emergencyContactPhone.trim() || null,
+            DocumentTypeCode:      documentTypeCode,
+            DocumentNumber:        documentNumber.trim()
         });
     }
 
@@ -136,6 +142,29 @@
                         class={dpCls('sexCode')}
                     />
                     {#if fieldErrors.sexCode}<p class={fieldError}>{fieldErrors.sexCode}</p>{/if}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_2fr]">
+                <div>
+                    <label for="p-docType" class={fieldLabel}>
+                        Tipo de documento <span class={required} aria-hidden="true">*</span>
+                    </label>
+                    <SearchSelect
+                        id="p-docType"
+                        bind:value={documentTypeCode}
+                        options={lookups.documentTypes.map(d => ({ value: d.code, label: d.name }))}
+                        disabled={submitting}
+                        class={dpCls('documentTypeCode')}
+                    />
+                    {#if fieldErrors.documentTypeCode}<p class={fieldError}>{fieldErrors.documentTypeCode}</p>{/if}
+                </div>
+                <div>
+                    <label for="p-docNumber" class={fieldLabel}>
+                        Número de documento <span class={required} aria-hidden="true">*</span>
+                    </label>
+                    <TextInput id="p-docNumber" bind:value={documentNumber} maxLength={50} disabled={submitting} class={dpCls('documentNumber')} />
+                    {#if fieldErrors.documentNumber}<p class={fieldError}>{fieldErrors.documentNumber}</p>{/if}
                 </div>
             </div>
 

@@ -15,6 +15,9 @@ export interface PersonResponse {
     address: string | null;
     emergencyContactName: string | null;
     emergencyContactPhone: string | null;
+    documentTypeCode: string | null;
+    documentTypeName: string | null;
+    documentNumber: string | null;
 }
 
 export interface PersonPageResponse {
@@ -36,6 +39,8 @@ export interface PersonRequestBody {
     Address?: string | null;
     EmergencyContactName?: string | null;
     EmergencyContactPhone?: string | null;
+    DocumentTypeCode: string;
+    DocumentNumber: string;
 }
 
 export const personApi = {

@@ -5,6 +5,7 @@ import { lookupsApi, type GuidLookupItemResponse } from '$lib/api/lookupsApi';
 
 export interface PersonLookups {
     sexes: GuidLookupItemResponse[];
+    documentTypes: GuidLookupItemResponse[];
 }
 
 let _items       = $state<PersonResponse[]>([]);
@@ -18,7 +19,7 @@ let _error       = $state<string | null>(null);
 let _submitting  = $state(false);
 let _submitError = $state<string | null>(null);
 
-let _lookups: PersonLookups = $state({ sexes: [] });
+let _lookups: PersonLookups = $state({ sexes: [], documentTypes: [] });
 let _lookupsLoaded = false;
 
 export const persons = {
@@ -58,7 +59,7 @@ export const persons = {
     async _loadLookups(): Promise<void> {
         try {
             const data = await lookupsApi.getUserLookups();
-            _lookups = { sexes: data.sexes };
+            _lookups = { sexes: data.sexes, documentTypes: data.documentTypes };
             _lookupsLoaded = true;
         } catch {
             // Non-fatal: form will show empty select if this fails
