@@ -3,4 +3,8 @@
     import PatientsPage from '$lib/features/patients/components/PatientsPage.svelte';
 </script>
 
+<svelte:head>
+    <title>Pacientes — RxLink</title>
+</svelte:head>
+
 <PatientsPage />

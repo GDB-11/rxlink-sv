@@ -74,6 +74,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>Usuarios — RxLink</title>
+</svelte:head>
+
 <!-- Page header -->
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
     <div>

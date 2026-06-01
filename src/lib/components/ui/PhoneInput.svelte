@@ -70,6 +70,7 @@
         { name: 'India',           dial: '+91',  flag: '🇮🇳' },
         { name: 'Australia',       dial: '+61',  flag: '🇦🇺' },
         { name: 'Nueva Zelanda',   dial: '+64',  flag: '🇳🇿' },
+        { name: 'Rusia',           dial: '+7',   flag: '🇷🇺' },
     ];
 
     function applyFormat(digits: string, mask: string): string {
