@@ -8,7 +8,7 @@
         type?: 'text' | 'email';
         placeholder?: string;
         disabled?: boolean;
-        autocomplete?: string;
+        autocomplete?: import('svelte/elements').HTMLInputAttributes['autocomplete'];
         maxLength?: number;
         minLength?: number;
         /** 'names' — Spanish/American letters, spaces, hyphens, apostrophes

@@ -53,6 +53,22 @@ export const personApi = {
         return api.get<PersonPageResponse>(`/api/person?${params}`);
     },
 
+    getAvailable(
+        page: number,
+        pageSize: number,
+        search?: string,
+        options?: { excludeLinkedUsers?: boolean; excludeLinkedPatients?: boolean }
+    ): Promise<PersonPageResponse> {
+        const params = new URLSearchParams({
+            page: String(page),
+            pageSize: String(pageSize)
+        });
+        if (search?.trim()) params.set('search', search.trim());
+        if (options?.excludeLinkedUsers)    params.set('excludeLinkedUsers', 'true');
+        if (options?.excludeLinkedPatients) params.set('excludeLinkedPatients', 'true');
+        return api.get<PersonPageResponse>(`/api/person/available?${params}`);
+    },
+
     create(body: PersonRequestBody): Promise<PersonResponse> {
         return api.post<PersonResponse>('/api/person', body);
     },

@@ -4,6 +4,8 @@ import { api } from './api';
 
 export interface UserResponse {
     userCode: string;
+    personCode: string;
+    // Person (read-only — managed via /personas)
     names: string;
     surnames: string;
     birthDate: string;
@@ -15,11 +17,12 @@ export interface UserResponse {
     address: string | null;
     emergencyContactName: string | null;
     emergencyContactPhone: string | null;
-    documentTypeCode: string;
-    documentTypeName: string;
-    documentNumber: string;
+    documentTypeCode: string | null;
+    documentTypeName: string | null;
+    documentNumber: string | null;
     documentIssueDate: string | null;
     documentExpirationDate: string | null;
+    // Account
     roleCode: string;
     roleName: string;
     specialtyCode: string | null;
@@ -40,20 +43,7 @@ export interface UserPageResponse {
 }
 
 export interface CreateUserBody {
-    Names: string;
-    Surnames: string;
-    BirthDate: string;
-    SexCode: string;
-    Phone: string;
-    AlternativePhone?: string | null;
-    PersonEmail: string;
-    Address?: string | null;
-    EmergencyContactName?: string | null;
-    EmergencyContactPhone?: string | null;
-    DocumentTypeCode: string;
-    DocumentNumber: string;
-    DocumentIssueDate?: string | null;
-    DocumentExpirationDate?: string | null;
+    PersonCode: string;
     RoleName: string;
     SpecialtyCode?: string | null;
     Username: string;
@@ -63,20 +53,6 @@ export interface CreateUserBody {
 }
 
 export interface UpdateUserBody {
-    Names: string;
-    Surnames: string;
-    BirthDate: string;
-    SexCode: string;
-    Phone: string;
-    AlternativePhone?: string | null;
-    PersonEmail: string;
-    Address?: string | null;
-    EmergencyContactName?: string | null;
-    EmergencyContactPhone?: string | null;
-    DocumentTypeCode: string;
-    DocumentNumber: string;
-    DocumentIssueDate?: string | null;
-    DocumentExpirationDate?: string | null;
     RoleName: string;
     SpecialtyCode?: string | null;
     Username: string;

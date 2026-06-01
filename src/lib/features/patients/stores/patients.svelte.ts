@@ -1,14 +1,8 @@
-// src/lib/features/users/stores/users.svelte.ts
+// src/lib/features/patients/stores/patients.svelte.ts
 
-import { userApi, type UserResponse, type CreateUserBody, type UpdateUserBody } from '$lib/api/userApi';
-import { lookupsApi, type GuidLookupItemResponse } from '$lib/api/lookupsApi';
+import { patientApi, type PatientResponse, type CreatePatientBody, type UpdatePatientBody } from '$lib/api/patientApi';
 
-export interface UserLookups {
-    roles:       GuidLookupItemResponse[];
-    specialties: GuidLookupItemResponse[];
-}
-
-let _items       = $state<UserResponse[]>([]);
+let _items       = $state<PatientResponse[]>([]);
 let _totalCount  = $state(0);
 let _page        = $state(1);
 let _pageSize    = $state(20);
@@ -19,10 +13,7 @@ let _error       = $state<string | null>(null);
 let _submitting  = $state(false);
 let _submitError = $state<string | null>(null);
 
-let _lookups: UserLookups = $state({ roles: [], specialties: [] });
-let _lookupsLoaded = false;
-
-export const users = {
+export const patients = {
     get items()       { return _items; },
     get totalCount()  { return _totalCount; },
     get page()        { return _page; },
@@ -33,39 +24,19 @@ export const users = {
     get error()       { return _error; },
     get submitting()  { return _submitting; },
     get submitError() { return _submitError; },
-    get lookups()     { return _lookups; },
 
     async loadPage(): Promise<void> {
         _loading = true;
         _error   = null;
-
-        const lookupsPromise = _lookupsLoaded ? Promise.resolve() : this._loadLookups();
-
         try {
-            const [pageData] = await Promise.all([
-                userApi.getPage(_page, _pageSize, _search || undefined),
-                lookupsPromise
-            ]);
-            _items      = pageData.items;
-            _totalCount = pageData.totalCount;
-            _totalPages = pageData.totalPages;
+            const data = await patientApi.getPage(_page, _pageSize, _search || undefined);
+            _items      = data.items;
+            _totalCount = data.totalCount;
+            _totalPages = data.totalPages;
         } catch (err) {
-            _error = err instanceof Error ? err.message : 'Error al cargar usuarios.';
+            _error = err instanceof Error ? err.message : 'Error al cargar pacientes.';
         } finally {
             _loading = false;
-        }
-    },
-
-    async _loadLookups(): Promise<void> {
-        try {
-            const data = await lookupsApi.getUserLookups();
-            _lookups = {
-                roles:       data.roles,
-                specialties: data.specialties
-            };
-            _lookupsLoaded = true;
-        } catch {
-            // Non-fatal: form will show empty selects if this fails
         }
     },
 
@@ -80,30 +51,30 @@ export const users = {
         await this.loadPage();
     },
 
-    async create(body: CreateUserBody): Promise<boolean> {
+    async create(body: CreatePatientBody): Promise<boolean> {
         _submitting  = true;
         _submitError = null;
         try {
-            await userApi.create(body);
+            await patientApi.create(body);
             await this.loadPage();
             return true;
         } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al crear usuario.';
+            _submitError = err instanceof Error ? err.message : 'Error al registrar paciente.';
             return false;
         } finally {
             _submitting = false;
         }
     },
 
-    async update(code: string, body: UpdateUserBody): Promise<boolean> {
+    async update(code: string, body: UpdatePatientBody): Promise<boolean> {
         _submitting  = true;
         _submitError = null;
         try {
-            await userApi.update(code, body);
+            await patientApi.update(code, body);
             await this.loadPage();
             return true;
         } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al actualizar usuario.';
+            _submitError = err instanceof Error ? err.message : 'Error al actualizar paciente.';
             return false;
         } finally {
             _submitting = false;
@@ -114,11 +85,11 @@ export const users = {
         _submitting  = true;
         _submitError = null;
         try {
-            await userApi.deactivate(code);
+            await patientApi.deactivate(code);
             await this.loadPage();
             return true;
         } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al desactivar usuario.';
+            _submitError = err instanceof Error ? err.message : 'Error al desactivar paciente.';
             return false;
         } finally {
             _submitting = false;
@@ -129,11 +100,11 @@ export const users = {
         _submitting  = true;
         _submitError = null;
         try {
-            await userApi.activate(code);
+            await patientApi.activate(code);
             await this.loadPage();
             return true;
         } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al activar usuario.';
+            _submitError = err instanceof Error ? err.message : 'Error al activar paciente.';
             return false;
         } finally {
             _submitting = false;
