@@ -24,6 +24,10 @@ export interface UserLookupsResponse {
     specialties: GuidLookupItemResponse[];
 }
 
+export interface PatientLookupsResponse {
+    allergySeverities: GuidLookupItemResponse[];
+}
+
 export const lookupsApi = {
     getMedicationLookups(): Promise<MedicationLookupsResponse> {
         return api.get<MedicationLookupsResponse>('/api/lookups/medications');
@@ -31,5 +35,9 @@ export const lookupsApi = {
 
     getUserLookups(): Promise<UserLookupsResponse> {
         return api.get<UserLookupsResponse>('/api/lookups/users');
+    },
+
+    getPatientLookups(): Promise<PatientLookupsResponse> {
+        return api.get<PatientLookupsResponse>('/api/lookups/patients');
     }
 };

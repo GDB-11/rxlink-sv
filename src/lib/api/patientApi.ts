@@ -6,6 +6,8 @@ export interface PatientAllergyResponse {
     patientAllergyCode: string;
     allergyCode: string;
     allergyName: string;
+    severityCode: string | null;
+    severityName: string | null;
     notes: string | null;
 }
 
@@ -37,6 +39,7 @@ export interface PatientPageResponse {
 
 export interface CreatePatientAllergyItem {
     AllergyCode: string;
+    SeverityCode: string;
     Notes?: string | null;
 }
 

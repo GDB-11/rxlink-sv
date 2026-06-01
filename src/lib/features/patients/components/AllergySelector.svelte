@@ -1,13 +1,16 @@
 <!-- src/lib/features/patients/components/AllergySelector.svelte -->
-<!-- As-you-type allergy search with multi-select pills and optional notes. -->
+<!-- As-you-type allergy search with multi-select pills, severity picker, and optional notes. -->
 <script lang="ts">
+    import { onMount } from 'svelte';
     import { IconSearch, IconX } from '@tabler/icons-svelte';
     import { allergyApi, type AllergyResponse } from '$lib/api/allergyApi';
+    import { lookupsApi, type GuidLookupItemResponse } from '$lib/api/lookupsApi';
     import type { CreatePatientAllergyItem } from '$lib/api/patientApi';
 
     interface SelectedAllergy {
         allergyCode: string;
         allergyName: string;
+        severityCode: string;
         notes: string;
     }
 
@@ -17,12 +20,22 @@
     }
     let { onchange, disabled = false }: Props = $props();
 
-    let query     = $state('');
-    let results   = $state<AllergyResponse[]>([]);
-    let selected  = $state<SelectedAllergy[]>([]);
-    let searching = $state(false);
-    let open      = $state(false);
+    let query      = $state('');
+    let results    = $state<AllergyResponse[]>([]);
+    let selected   = $state<SelectedAllergy[]>([]);
+    let severities = $state<GuidLookupItemResponse[]>([]);
+    let searching  = $state(false);
+    let open       = $state(false);
     let timer: ReturnType<typeof setTimeout> | undefined;
+
+    onMount(async () => {
+        try {
+            const data = await lookupsApi.getPatientLookups();
+            severities = data.allergySeverities;
+        } catch {
+            severities = [];
+        }
+    });
 
     function handleInput(e: Event) {
         query = (e.currentTarget as HTMLInputElement).value;
@@ -48,7 +61,12 @@
     }
 
     function add(allergy: AllergyResponse) {
-        selected = [...selected, { allergyCode: allergy.allergyCode, allergyName: allergy.name, notes: '' }];
+        selected = [...selected, {
+            allergyCode:  allergy.allergyCode,
+            allergyName:  allergy.name,
+            severityCode: severities[0]?.code ?? '',
+            notes:        ''
+        }];
         query = '';
         results = [];
         open = false;
@@ -60,6 +78,11 @@
         notify();
     }
 
+    function updateSeverity(code: string, severityCode: string) {
+        selected = selected.map(s => s.allergyCode === code ? { ...s, severityCode } : s);
+        notify();
+    }
+
     function updateNote(code: string, note: string) {
         selected = selected.map(s => s.allergyCode === code ? { ...s, notes: note } : s);
         notify();
@@ -67,8 +90,9 @@
 
     function notify() {
         onchange(selected.map(s => ({
-            AllergyCode: s.allergyCode,
-            Notes: s.notes.trim() || null
+            AllergyCode:  s.allergyCode,
+            SeverityCode: s.severityCode,
+            Notes:        s.notes.trim() || null
         })));
     }
 
@@ -78,6 +102,11 @@
         disabled:cursor-not-allowed disabled:opacity-50
         dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50
         dark:placeholder:text-stone-600 dark:focus:border-teal-600`;
+
+    const selectCls = `w-full rounded border border-stone-200 bg-white px-2 py-1 text-xs
+        text-stone-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500/20
+        disabled:cursor-not-allowed disabled:opacity-50
+        dark:border-stone-600 dark:bg-stone-900 dark:text-stone-300`;
 </script>
 
 <div class="space-y-3">
@@ -146,6 +175,20 @@
                             <IconX size={14} aria-hidden="true" />
                         </button>
                     </div>
+                    <!-- Severity (required) -->
+                    <select
+                        value={item.severityCode}
+                        onchange={(e) => updateSeverity(item.allergyCode, (e.currentTarget as HTMLSelectElement).value)}
+                        {disabled}
+                        required
+                        aria-label="Severidad de {item.allergyName}"
+                        class={selectCls}
+                    >
+                        {#each severities as sev (sev.code)}
+                            <option value={sev.code}>{sev.name}</option>
+                        {/each}
+                    </select>
+                    <!-- Notes (optional) -->
                     <input
                         type="text"
                         value={item.notes}
