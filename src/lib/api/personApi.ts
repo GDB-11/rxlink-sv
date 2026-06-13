@@ -44,6 +44,10 @@ export interface PersonRequestBody {
 }
 
 export const personApi = {
+    getByCode(code: string): Promise<PersonResponse> {
+        return api.get<PersonResponse>(`/api/person/${code}`);
+    },
+
     getPage(page: number, pageSize: number, search?: string): Promise<PersonPageResponse> {
         const params = new URLSearchParams({
             page: String(page),

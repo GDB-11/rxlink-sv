@@ -35,6 +35,7 @@ export const auth = {
     get user(): UserInfo | null { return _user; },
     get accessToken(): string | null { return _accessToken; },
     get isAuthenticated(): boolean { return _user !== null && _accessToken !== null; },
+    get roleName(): string | null { return _user?.roleName ?? null; },
     getRefreshToken(): string | null { return _refreshToken; },
 
     login(data: LoginResponse) {

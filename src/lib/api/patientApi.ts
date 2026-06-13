@@ -52,7 +52,17 @@ export interface UpdatePatientBody {
     MedicalRecordNumber: string;
 }
 
+export interface PatientAllergyBody {
+    AllergyCode: string;
+    SeverityCode: string;
+    Notes?: string | null;
+}
+
 export const patientApi = {
+    getByCode(code: string): Promise<PatientResponse> {
+        return api.get<PatientResponse>(`/api/patient/${code}`);
+    },
+
     getPage(page: number, pageSize: number, search?: string): Promise<PatientPageResponse> {
         const params = new URLSearchParams({
             page: String(page),
@@ -76,5 +86,17 @@ export const patientApi = {
 
     activate(code: string): Promise<void> {
         return api.patch<void>(`/api/patient/${code}/activate`, {});
+    },
+
+    addAllergy(patientCode: string, body: PatientAllergyBody): Promise<PatientAllergyResponse> {
+        return api.post<PatientAllergyResponse>(`/api/patient/${patientCode}/allergies`, body);
+    },
+
+    updateAllergy(patientCode: string, allergyCode: string, body: PatientAllergyBody): Promise<PatientAllergyResponse> {
+        return api.put<PatientAllergyResponse>(`/api/patient/${patientCode}/allergies/${allergyCode}`, body);
+    },
+
+    removeAllergy(patientCode: string, allergyCode: string): Promise<void> {
+        return api.delete<void>(`/api/patient/${patientCode}/allergies/${allergyCode}`);
     }
 };

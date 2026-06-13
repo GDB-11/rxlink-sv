@@ -19,6 +19,7 @@ export interface UserInfo {
     userCode: string;
     username: string;
     fullName: string;
+    roleName: string;
 }
 
 export interface LoginResponse {

@@ -1,6 +1,6 @@
 <!-- src/lib/features/patients/components/PatientTable.svelte -->
 <script lang="ts">
-    import { IconPencil, IconBan, IconCircleCheck } from '@tabler/icons-svelte';
+    import { IconPencil, IconBan, IconCircleCheck, IconStethoscope } from '@tabler/icons-svelte';
     import type { PatientResponse } from '$lib/api/patientApi';
     import PatientStatusBadge from './PatientStatusBadge.svelte';
 
@@ -98,6 +98,16 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center justify-end gap-1">
+                                <a
+                                    href="/pacientes/{item.patientCode}/perfil"
+                                    class="rounded-lg p-1.5 text-stone-500 transition-colors
+                                           hover:bg-teal-50 hover:text-teal-700
+                                           dark:text-stone-400 dark:hover:bg-teal-900/30 dark:hover:text-teal-400"
+                                    title="Ver perfil médico"
+                                    aria-label="Ver perfil médico de {item.names} {item.surnames}"
+                                >
+                                    <IconStethoscope size={16} aria-hidden="true" />
+                                </a>
                                 <button
                                     type="button"
                                     onclick={() => onEdit(item)}
