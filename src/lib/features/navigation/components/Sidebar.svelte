@@ -18,7 +18,8 @@
         IconPlus,
         IconPencil,
         IconArrowBarRight,
-        IconLayoutDashboard
+        IconLayoutDashboard,
+        IconStethoscope
     } from '@tabler/icons-svelte';
     import { auth } from '$lib/features/auth';
     import { navigation } from '../stores/navigation.svelte';
@@ -47,7 +48,8 @@
         'history':          IconHistory,
         'plus':             IconPlus,
         'pencil':           IconPencil,
-        'arrow-bar-right':  IconArrowBarRight
+        'arrow-bar-right':  IconArrowBarRight,
+        'stethoscope':      IconStethoscope
     };
 
     function isActive(path: string): boolean {

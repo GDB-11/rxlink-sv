@@ -61,13 +61,18 @@ export interface UpdateUserBody {
 }
 
 export const userApi = {
-    getPage(page: number, pageSize: number, search?: string): Promise<UserPageResponse> {
+    getPage(page: number, pageSize: number, search?: string, role?: string): Promise<UserPageResponse> {
         const params = new URLSearchParams({
             page: String(page),
             pageSize: String(pageSize)
         });
         if (search?.trim()) params.set('search', search.trim());
+        if (role) params.set('role', role);
         return api.get<UserPageResponse>(`/api/user?${params}`);
+    },
+
+    getByCode(code: string): Promise<UserResponse> {
+        return api.get<UserResponse>(`/api/user/${code}`);
     },
 
     create(body: CreateUserBody): Promise<UserResponse> {

@@ -9,7 +9,8 @@
         IconUserCircle,
         IconPill,
         IconMenu2,
-        IconX
+        IconX,
+        IconStethoscope
     } from '@tabler/icons-svelte';
     import { ThemeToggle } from '$lib/features/theme';
     import { auth } from '$lib/features/auth';
@@ -31,7 +32,8 @@
         'chart-bar':        IconChartBar,
         'file-text':        IconFileText,
         'user-circle':      IconUserCircle,
-        'pill':             IconPill
+        'pill':             IconPill,
+        'stethoscope':      IconStethoscope
     };
 
     function getInitials(fullName: string): string {
