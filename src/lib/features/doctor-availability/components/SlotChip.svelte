@@ -1,6 +1,6 @@
 <!-- src/lib/features/doctor-availability/components/SlotChip.svelte -->
 <script lang="ts">
-    import { IconX } from '@tabler/icons-svelte';
+    import { IconX, IconLock } from '@tabler/icons-svelte';
     import type { AvailabilityResponse } from '$lib/api/availabilityApi';
 
     interface Props {
@@ -20,7 +20,7 @@
         {slot.startTime}
         <span aria-hidden="true" class="text-stone-300 dark:text-stone-600">●</span>
     </span>
-{:else if isAdmin}
+{:else if isAdmin && slot.canDelete}
     <button
         type="button"
         onclick={() => ondelete(slot.availabilityCode)}
@@ -32,6 +32,16 @@
         {slot.startTime}
         <IconX size={10} aria-hidden="true" />
     </button>
+{:else if isAdmin}
+    <span
+        class="inline-flex items-center gap-1 rounded-md bg-teal-50/60 px-2 py-0.5
+               text-xs text-teal-400 dark:bg-teal-900/20 dark:text-teal-600"
+        title="No se puede eliminar este slot"
+        aria-label="Slot bloqueado: {slot.startTime}"
+    >
+        {slot.startTime}
+        <IconLock size={10} aria-hidden="true" />
+    </span>
 {:else}
     <span
         class="inline-flex items-center rounded-md bg-teal-50 px-2 py-0.5

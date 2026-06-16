@@ -117,7 +117,7 @@
         aria-label="Seleccionar hora"
         style={popupStyle}
         style:max-height="240px"
-        class="fixed z-[100] w-40 overflow-y-auto rounded-xl border border-stone-200 bg-white
+        class="fixed z-100 w-40 overflow-y-auto rounded-xl border border-stone-200 bg-white
                py-1 shadow-2xl dark:border-stone-700 dark:bg-stone-800"
     >
         {#if options.length === 0}

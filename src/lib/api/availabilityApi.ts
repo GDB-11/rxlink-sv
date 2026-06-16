@@ -7,6 +7,7 @@ export interface AvailabilityResponse {
     date:             string;   // "YYYY-MM-DD"
     startTime:        string;   // "HH:MM"
     isBooked:         boolean;
+    canDelete:        boolean;
 }
 
 export interface SlotEntry {

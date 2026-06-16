@@ -372,7 +372,7 @@
         role="dialog"
         aria-label="Selector de fecha"
         style={popupStyle}
-        class="fixed z-[100] w-72 rounded-xl border border-stone-200 bg-white p-3
+        class="fixed z-100 w-72 rounded-xl border border-stone-200 bg-white p-3
                shadow-2xl dark:border-stone-700 dark:bg-stone-800"
     >
         {#if viewMode === 'day'}

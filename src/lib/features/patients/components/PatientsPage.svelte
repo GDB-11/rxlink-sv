@@ -30,13 +30,6 @@
         formOpen = true;
     }
 
-    function openEdit(item: PatientResponse) {
-        editTarget = item;
-        formMode   = 'edit';
-        patients.clearSubmitError();
-        formOpen = true;
-    }
-
     function openDeactivate(item: PatientResponse) {
         deactivateTarget = item;
         patients.clearSubmitError();
@@ -121,7 +114,6 @@
 <PatientTable
     items={patients.items}
     loading={patients.loading}
-    onEdit={openEdit}
     onDeactivate={openDeactivate}
     onActivate={openActivate}
 />
