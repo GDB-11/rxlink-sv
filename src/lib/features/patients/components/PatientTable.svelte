@@ -7,11 +7,10 @@
     interface Props {
         items: PatientResponse[];
         loading: boolean;
-        onEdit: (item: PatientResponse) => void;
         onDeactivate: (item: PatientResponse) => void;
         onActivate: (item: PatientResponse) => void;
     }
-    let { items, loading, onEdit, onDeactivate, onActivate }: Props = $props();
+    let { items, loading, onDeactivate, onActivate }: Props = $props();
 
     const skeletonRows = [1, 2, 3, 4, 5];
 </script>
@@ -108,7 +107,7 @@
                                 >
                                     <IconStethoscope size={16} aria-hidden="true" />
                                 </a>
-                                <button
+                                <!-- <button
                                     type="button"
                                     onclick={() => onEdit(item)}
                                     class="cursor-pointer rounded-lg p-1.5 text-stone-500 transition-colors
@@ -117,7 +116,7 @@
                                     aria-label="Editar {item.names} {item.surnames}"
                                 >
                                     <IconPencil size={16} aria-hidden="true" />
-                                </button>
+                                </button> -->
                                 {#if item.isActive}
                                     <button
                                         type="button"

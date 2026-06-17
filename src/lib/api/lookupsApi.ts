@@ -28,6 +28,10 @@ export interface PatientLookupsResponse {
     allergySeverities: GuidLookupItemResponse[];
 }
 
+export interface AppointmentLookupsResponse {
+    consultationTypes: GuidLookupItemResponse[];
+}
+
 export const lookupsApi = {
     getMedicationLookups(): Promise<MedicationLookupsResponse> {
         return api.get<MedicationLookupsResponse>('/api/lookups/medications');
@@ -39,5 +43,9 @@ export const lookupsApi = {
 
     getPatientLookups(): Promise<PatientLookupsResponse> {
         return api.get<PatientLookupsResponse>('/api/lookups/patients');
+    },
+
+    getAppointmentLookups(): Promise<AppointmentLookupsResponse> {
+        return api.get<AppointmentLookupsResponse>('/api/lookups/appointments');
     }
 };

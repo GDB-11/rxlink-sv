@@ -1,0 +1,86 @@
+// src/lib/api/appointmentApi.ts
+
+import { api } from './api';
+
+export interface AppointmentResponse {
+    appointmentCode: string;
+    patientCode: string;
+    patientNames: string;
+    patientSurnames: string;
+    doctorCode: string;
+    doctorNames: string;
+    doctorSurnames: string;
+    specialtyName: string;
+    consultationTypeName: string;
+    statusName: string;
+    statusCode: string;
+    scheduledAt: string;
+    date: string;
+    time: string;
+    createdAt: string;
+}
+
+export interface AppointmentPageResponse {
+    items: AppointmentResponse[];
+    total: number;
+    page: number;
+    pageSize: number;
+}
+
+export interface DoctorAppointmentPageParams {
+    page?: number;
+    pageSize?: number;
+    date?: string;
+    statusName?: string;
+}
+
+export const appointmentApi = {
+    getDoctorAppointments(params: DoctorAppointmentPageParams = {}): Promise<AppointmentPageResponse> {
+        const p = new URLSearchParams();
+        if (params.page)       p.set('page',       String(params.page));
+        if (params.pageSize)   p.set('pageSize',   String(params.pageSize));
+        if (params.date)       p.set('date',       params.date);
+        if (params.statusName) p.set('statusName', params.statusName);
+        const qs = p.toString();
+        return api.get<AppointmentPageResponse>(`/api/doctor/appointments${qs ? `?${qs}` : ''}`);
+    },
+
+    getAppointment(code: string): Promise<AppointmentResponse> {
+        return api.get<AppointmentResponse>(`/api/appointment/${code}`);
+    },
+
+    completeAppointment(code: string): Promise<void> {
+        return api.patch<void>(`/api/appointment/${code}/complete`, {});
+    },
+
+    adminCreate(body: {
+        patientCode: string;
+        availabilityCode: string;
+        consultationTypeCode: string;
+        isPaid: boolean;
+    }): Promise<AppointmentResponse> {
+        return api.post<AppointmentResponse>('/api/admin/appointment', body);
+    },
+
+    adminConfirmPayment(code: string): Promise<void> {
+        return api.patch<void>(`/api/appointment/${code}/admin-confirm-payment`, {});
+    },
+
+    adminRevertPayment(code: string): Promise<void> {
+        return api.patch<void>(`/api/appointment/${code}/admin-revert-payment`, {});
+    },
+
+    getAdminAppointments(params: {
+        page?: number;
+        pageSize?: number;
+        patientSearch?: string;
+        date?: string;
+        statusName?: string;
+    }): Promise<AppointmentPageResponse> {
+        const p = new URLSearchParams({ page: String(params.page ?? 1), pageSize: String(params.pageSize ?? 10) });
+        if (params.patientSearch?.trim()) p.set('patientSearch', params.patientSearch.trim());
+        if (params.date) p.set('date', params.date);
+        if (params.statusName) p.set('statusName', params.statusName);
+        return api.get<AppointmentPageResponse>(`/api/admin/appointments?${p}`);
+    },
+};
