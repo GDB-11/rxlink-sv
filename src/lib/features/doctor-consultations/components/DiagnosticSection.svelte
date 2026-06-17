@@ -111,7 +111,7 @@
 
     <div class="p-5">
         {#if showForm && !isReadOnly}
-            <form onsubmit={handleSubmit} novalidate class="space-y-4">
+            <form onsubmit={handleSubmit} novalidate autocomplete="off" class="space-y-4">
                 {#if submitError}
                     <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm
                                 text-rose-700 dark:border-rose-800 dark:bg-rose-900/30 dark:text-rose-400">

@@ -207,7 +207,7 @@
                     </button>
                 </div>
             {:else}
-                <form onsubmit={handleSubmit} novalidate>
+                <form onsubmit={handleSubmit} novalidate autocomplete="off">
                     <div class="space-y-5 px-6 py-5">
 
                         {#if medicalProfile.submitError}
