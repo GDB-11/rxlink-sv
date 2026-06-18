@@ -1,6 +1,7 @@
 <!-- src/lib/features/admin-appointments/components/AdminAppointmentFilters.svelte -->
 <script lang="ts">
     import { untrack } from 'svelte';
+    import { IconSearch, IconX } from '@tabler/icons-svelte';
     import DatePicker from '$lib/components/ui/DatePicker.svelte';
 
     interface Props {
@@ -25,7 +26,26 @@
         { value: 'NoAsistio',     label: 'No asistió' }
     ];
 
-    function apply(): void {
+    let searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+    function onSearchInput(): void {
+        if (searchTimer) clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            onchange(localSearch, localDate, localStatus);
+        }, 350);
+    }
+
+    // Watch date changes (DatePicker uses bind:value — track via effect)
+    let prevDate = untrack(() => localDate);
+    $effect(() => {
+        const d = localDate;
+        if (d !== prevDate) {
+            prevDate = d;
+            onchange(localSearch, d, localStatus);
+        }
+    });
+
+    function onStatusChange(): void {
         onchange(localSearch, localDate, localStatus);
     }
 
@@ -40,28 +60,39 @@
 </script>
 
 <div class="flex flex-wrap items-end gap-3">
-    <div class="min-w-[180px] flex-1">
+    <!-- Patient search -->
+    <div class="min-w-[200px] flex-1">
         <label for="admin-apt-search" class="mb-1.5 block text-xs font-medium text-stone-600 dark:text-stone-400">
             Paciente
         </label>
-        <input
-            id="admin-apt-search"
-            type="text"
-            bind:value={localSearch}
-            disabled={loading}
-            placeholder="Buscar por nombre o apellido…"
-            class="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900
-                   placeholder-stone-400 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2
-                   focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-50
-                   dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
-        />
+        <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <IconSearch size={14} class="text-stone-400" aria-hidden="true" />
+            </div>
+            <input
+                id="admin-apt-search"
+                type="text"
+                bind:value={localSearch}
+                oninput={onSearchInput}
+                disabled={loading}
+                placeholder="Buscar por nombre o apellido…"
+                autocomplete="off"
+                class="w-full rounded-lg border border-stone-200 bg-white py-2 pl-8 pr-3 text-sm
+                       text-stone-900 placeholder-stone-400 transition-colors
+                       focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20
+                       disabled:cursor-not-allowed disabled:opacity-50
+                       dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
+            />
+        </div>
     </div>
 
+    <!-- Date -->
     <div class="min-w-[160px] flex-1">
         <p class="mb-1.5 text-xs font-medium text-stone-600 dark:text-stone-400" aria-hidden="true">Fecha</p>
         <DatePicker bind:value={localDate} disabled={loading} placeholder="Cualquier fecha" />
     </div>
 
+    <!-- Status -->
     <div class="min-w-[160px] flex-1">
         <label for="admin-apt-status" class="mb-1.5 block text-xs font-medium text-stone-600 dark:text-stone-400">
             Estado
@@ -69,6 +100,7 @@
         <select
             id="admin-apt-status"
             bind:value={localStatus}
+            onchange={onStatusChange}
             disabled={loading}
             class="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900
                    transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20
@@ -81,29 +113,19 @@
         </select>
     </div>
 
-    <div class="flex gap-2">
+    <!-- Clear -->
+    {#if hasFilters}
         <button
             type="button"
-            onclick={apply}
+            onclick={clear}
             disabled={loading}
-            class="cursor-pointer rounded-lg bg-teal-500 px-4 py-2 text-sm font-medium text-white
-                   transition-colors hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50
-                   dark:bg-teal-600 dark:hover:bg-teal-700"
+            class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-2
+                   text-sm text-stone-500 transition-colors hover:bg-stone-50
+                   disabled:cursor-not-allowed disabled:opacity-50
+                   dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800"
         >
-            Filtrar
+            <IconX size={14} aria-hidden="true" />
+            Limpiar
         </button>
-        {#if hasFilters}
-            <button
-                type="button"
-                onclick={clear}
-                disabled={loading}
-                class="cursor-pointer rounded-lg border border-stone-200 px-4 py-2 text-sm font-medium
-                       text-stone-600 transition-colors hover:bg-stone-50
-                       disabled:cursor-not-allowed disabled:opacity-50
-                       dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800"
-            >
-                Limpiar
-            </button>
-        {/if}
-    </div>
+    {/if}
 </div>

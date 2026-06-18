@@ -27,15 +27,13 @@
         </a>
     </div>
 
-    <div class="rounded-xl border border-stone-200 bg-white p-4 dark:border-stone-700 dark:bg-stone-900">
-        <AdminAppointmentFilters
-            patientSearch={adminAppointments.patientSearch}
-            date={adminAppointments.date}
-            statusName={adminAppointments.statusName}
-            loading={adminAppointments.loading}
-            onchange={(s, d, st) => adminAppointments.setFilters(s, d, st)}
-        />
-    </div>
+    <AdminAppointmentFilters
+        patientSearch={adminAppointments.patientSearch}
+        date={adminAppointments.date}
+        statusName={adminAppointments.statusName}
+        loading={adminAppointments.loading}
+        onchange={(s, d, st) => adminAppointments.setFilters(s, d, st)}
+    />
 
     {#if adminAppointments.error}
         <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700

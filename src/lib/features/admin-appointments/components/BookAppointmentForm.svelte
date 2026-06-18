@@ -2,6 +2,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { IconSearch, IconUser, IconStethoscope, IconX, IconChevronLeft, IconChevronRight } from '@tabler/icons-svelte';
     import { patientApi, type PatientResponse } from '$lib/api/patientApi';
     import { userApi, type UserResponse } from '$lib/api/userApi';
     import { availabilityApi, type AvailabilityResponse } from '$lib/api/availabilityApi';
@@ -63,10 +64,22 @@
     }
 
     async function selectDoctor(u: UserResponse): Promise<void> {
-        bookAppointment.selectDoctor(u.userCode, `${u.names} ${u.surnames}`);
+        bookAppointment.selectDoctor(u.userCode, `${u.surnames}, ${u.names}`);
         doctorResults = [];
         doctorSearch  = '';
         await loadSlots();
+    }
+
+    function deselectDoctor(): void {
+        bookAppointment.selectDoctor('', '');
+        doctorSearch  = '';
+        doctorResults = [];
+        slots         = [];
+        slotsError    = null;
+    }
+
+    function isFutureSlot(date: string, startTime: string): boolean {
+        return new Date(`${date}T${startTime}:00`) > new Date();
     }
 
     async function loadSlots(): Promise<void> {
@@ -75,7 +88,7 @@
         slotsError   = null;
         try {
             const all = await availabilityApi.getSlots(bookAppointment.selectedDoctorCode, currentMonth);
-            slots = all.filter(s => !s.isBooked);
+            slots = all.filter(s => !s.isBooked && isFutureSlot(s.date, s.startTime));
         } catch (err) {
             slotsError = err instanceof Error ? err.message : 'Error al cargar los horarios.';
         } finally {
@@ -107,9 +120,16 @@
     const sortedDates = $derived(Object.keys(slotsByDate).sort());
 
     function fmtDate(s: string): string {
+        if (!s) return '';
         return new Date(s + 'T00:00:00').toLocaleDateString('es-PE', {
             weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
         });
+    }
+
+    function fmtMonth(ym: string): string {
+        const [y, m] = ym.split('-').map(Number);
+        const s = new Date(y, m - 1, 1).toLocaleDateString('es-PE', { month: 'long', year: 'numeric' });
+        return s.charAt(0).toUpperCase() + s.slice(1);
     }
 
     // ── Step 3: Submit ─────────────────────────────────────────────────────
@@ -120,72 +140,112 @@
             goto('/citas');
         }
     }
+
+    const STEPS = [
+        { n: 1 as const, label: 'Paciente' },
+        { n: 2 as const, label: 'Médico y horario' },
+        { n: 3 as const, label: 'Tipo y pago' }
+    ];
 </script>
 
 <div class="mx-auto max-w-2xl space-y-6">
-    <div class="flex items-center gap-4">
+    <!-- Header -->
+    <div class="flex items-center gap-3">
         <a
             href="/citas"
-            class="text-sm text-stone-500 transition-colors hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
+            class="flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 text-stone-500
+                   transition-colors hover:border-stone-300 hover:bg-stone-50 hover:text-stone-700
+                   dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200"
+            aria-label="Volver a citas"
         >
-            ← Volver
+            <IconChevronLeft size={16} aria-hidden="true" />
         </a>
         <h1 class="text-xl font-semibold text-stone-900 dark:text-stone-50">Nueva cita</h1>
     </div>
 
     <!-- Step indicator -->
-    <div class="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500">
-        {#each [{ n: 1, label: 'Paciente' }, { n: 2, label: 'Médico y horario' }, { n: 3, label: 'Tipo y pago' }] as s (s.n)}
-            <span class="flex items-center gap-1">
-                <span class="flex h-5 w-5 items-center justify-center rounded-full text-xs font-semibold
-                             {bookAppointment.step === s.n
-                                 ? 'bg-teal-500 text-white'
-                                 : bookAppointment.step > s.n
-                                     ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400'
-                                     : 'bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-600'}">
-                    {s.n}
+    <div class="flex items-center">
+        {#each STEPS as s (s.n)}
+            {@const active = bookAppointment.step === s.n}
+            {@const done   = bookAppointment.step > s.n}
+            <div class="flex items-center gap-2">
+                <span
+                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold
+                           {active ? 'bg-teal-500 text-white'
+                            : done  ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400'
+                            : 'bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-500'}"
+                >
+                    {done ? '✓' : s.n}
                 </span>
-                <span class="{bookAppointment.step === s.n ? 'text-stone-700 dark:text-stone-200' : ''}">{s.label}</span>
-            </span>
-            {#if s.n < 3}<span>›</span>{/if}
+                <span
+                    class="text-sm
+                           {active ? 'font-semibold text-stone-900 dark:text-stone-50'
+                            : done  ? 'text-teal-600 dark:text-teal-400'
+                            : 'text-stone-400 dark:text-stone-500'}"
+                >
+                    {s.label}
+                </span>
+            </div>
+            {#if s.n < 3}
+                <div class="mx-3 h-px flex-1 bg-stone-200 dark:bg-stone-700"></div>
+            {/if}
         {/each}
     </div>
 
     <!-- ── Step 1: Patient ── -->
     {#if bookAppointment.step === 1}
         <div class="space-y-4 rounded-xl border border-stone-200 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
-            <h2 class="text-base font-medium text-stone-900 dark:text-stone-50">Buscar paciente</h2>
-            <input
-                type="text"
-                bind:value={patientSearch}
-                oninput={onPatientInput}
-                placeholder="Nombre o apellido del paciente…"
-                class="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900
-                       placeholder-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20
-                       dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
-            />
-            {#if patientLoading}
-                <p class="text-xs text-stone-400">Buscando…</p>
-            {:else if patientResults.length > 0}
-                <ul class="divide-y divide-stone-100 rounded-lg border border-stone-200 dark:divide-stone-800 dark:border-stone-700">
+            <h2 class="text-base font-semibold text-stone-900 dark:text-stone-50">Buscar paciente</h2>
+
+            <div class="relative">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    {#if patientLoading}
+                        <span class="h-4 w-4 animate-spin rounded-full border-2 border-stone-300 border-t-teal-500
+                                     dark:border-stone-600 dark:border-t-teal-400" aria-hidden="true"></span>
+                    {:else}
+                        <IconSearch size={16} class="text-stone-400" aria-hidden="true" />
+                    {/if}
+                </div>
+                <input
+                    type="text"
+                    bind:value={patientSearch}
+                    oninput={onPatientInput}
+                    placeholder="Nombre o apellido del paciente…"
+                    autocomplete="off"
+                    class="w-full rounded-lg border border-stone-200 bg-white py-2 pl-9 pr-3 text-sm
+                           text-stone-900 placeholder-stone-400
+                           focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20
+                           dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
+                />
+            </div>
+
+            {#if patientResults.length > 0}
+                <ul class="overflow-hidden rounded-lg border border-stone-200 divide-y divide-stone-100
+                           dark:border-stone-700 dark:divide-stone-800">
                     {#each patientResults as p (p.patientCode)}
                         <li>
                             <button
                                 type="button"
                                 onclick={() => selectPatient(p)}
                                 class="flex w-full items-center gap-3 px-4 py-3 text-left text-sm
-                                       hover:bg-stone-50 dark:hover:bg-stone-800/50"
+                                       transition-colors hover:bg-teal-50 dark:hover:bg-teal-900/20"
                             >
-                                <span class="font-medium text-stone-900 dark:text-stone-50">
-                                    {p.surnames}, {p.names}
+                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full
+                                             bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400">
+                                    <IconUser size={14} aria-hidden="true" />
                                 </span>
-                                <span class="text-xs text-stone-400">{p.medicalRecordNumber}</span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block font-medium text-stone-900 dark:text-stone-50">
+                                        {p.surnames}, {p.names}
+                                    </span>
+                                    <span class="block text-xs text-stone-400">{p.medicalRecordNumber}</span>
+                                </span>
                             </button>
                         </li>
                     {/each}
                 </ul>
             {:else if patientSearch.trim() && !patientLoading}
-                <p class="text-xs text-stone-400">Sin resultados.</p>
+                <p class="text-sm text-stone-400">Sin resultados para "{patientSearch}".</p>
             {/if}
         </div>
     {/if}
@@ -193,67 +253,147 @@
     <!-- ── Step 2: Doctor & Slot ── -->
     {#if bookAppointment.step === 2}
         <div class="space-y-5 rounded-xl border border-stone-200 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
-            <div>
-                <p class="text-xs text-stone-500 dark:text-stone-400">Paciente seleccionado</p>
-                <p class="text-sm font-medium text-stone-900 dark:text-stone-50">
-                    {bookAppointment.selectedPatient?.surnames}, {bookAppointment.selectedPatient?.names}
-                </p>
+            <!-- Selected patient chip -->
+            <div class="flex items-center gap-3 rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-3
+                        dark:border-teal-800 dark:bg-teal-900/20">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full
+                             bg-teal-100 text-teal-600 dark:bg-teal-900 dark:text-teal-400">
+                    <IconUser size={15} aria-hidden="true" />
+                </span>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs text-teal-600 dark:text-teal-400">Paciente</p>
+                    <p class="text-sm font-medium text-stone-900 dark:text-stone-50">
+                        {bookAppointment.selectedPatient?.surnames}, {bookAppointment.selectedPatient?.names}
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onclick={() => bookAppointment.goBack()}
+                    class="cursor-pointer shrink-0 rounded p-1 text-stone-400 transition-colors
+                           hover:bg-teal-100 hover:text-stone-600
+                           dark:hover:bg-teal-800 dark:hover:text-stone-300"
+                    aria-label="Cambiar paciente"
+                >
+                    <IconX size={14} aria-hidden="true" />
+                </button>
             </div>
 
-            <h2 class="text-base font-medium text-stone-900 dark:text-stone-50">Buscar médico</h2>
-            <input
-                type="text"
-                bind:value={doctorSearch}
-                oninput={onDoctorInput}
-                placeholder="Nombre o apellido del médico…"
-                class="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900
-                       placeholder-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20
-                       dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
-            />
-            {#if doctorLoading}
-                <p class="text-xs text-stone-400">Buscando…</p>
-            {:else if doctorResults.length > 0}
-                <ul class="divide-y divide-stone-100 rounded-lg border border-stone-200 dark:divide-stone-800 dark:border-stone-700">
-                    {#each doctorResults as u (u.userCode)}
-                        <li>
+            <div class="border-t border-stone-100 pt-4 dark:border-stone-800">
+                <h2 class="mb-3 text-base font-semibold text-stone-900 dark:text-stone-50">Buscar médico</h2>
+
+                <!-- Doctor selected chip OR search input -->
+                {#if bookAppointment.selectedDoctorCode}
+                    <div class="flex items-center gap-3 rounded-lg border border-stone-200 bg-stone-50 px-4 py-3
+                                dark:border-stone-700 dark:bg-stone-800/50">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full
+                                     bg-stone-200 text-stone-600 dark:bg-stone-700 dark:text-stone-400">
+                            <IconStethoscope size={15} aria-hidden="true" />
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs text-stone-500 dark:text-stone-400">Médico</p>
+                            <p class="text-sm font-medium text-stone-900 dark:text-stone-50">
+                                {bookAppointment.selectedDoctorName}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onclick={deselectDoctor}
+                            class="cursor-pointer shrink-0 rounded p-1 text-stone-400 transition-colors
+                                   hover:bg-stone-200 hover:text-stone-600
+                                   dark:hover:bg-stone-700 dark:hover:text-stone-300"
+                            aria-label="Cambiar médico"
+                        >
+                            <IconX size={14} aria-hidden="true" />
+                        </button>
+                    </div>
+                {:else}
+                    <div class="relative">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            {#if doctorLoading}
+                                <span class="h-4 w-4 animate-spin rounded-full border-2 border-stone-300 border-t-teal-500
+                                             dark:border-stone-600 dark:border-t-teal-400" aria-hidden="true"></span>
+                            {:else}
+                                <IconSearch size={16} class="text-stone-400" aria-hidden="true" />
+                            {/if}
+                        </div>
+                        <input
+                            type="text"
+                            bind:value={doctorSearch}
+                            oninput={onDoctorInput}
+                            placeholder="Nombre o apellido del médico…"
+                            autocomplete="off"
+                            class="w-full rounded-lg border border-stone-200 bg-white py-2 pl-9 pr-3 text-sm
+                                   text-stone-900 placeholder-stone-400
+                                   focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20
+                                   dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
+                        />
+                    </div>
+
+                    {#if doctorResults.length > 0}
+                        <ul class="mt-2 overflow-hidden rounded-lg border border-stone-200 divide-y divide-stone-100
+                                   dark:border-stone-700 dark:divide-stone-800">
+                            {#each doctorResults as u (u.userCode)}
+                                <li>
+                                    <button
+                                        type="button"
+                                        onclick={() => selectDoctor(u)}
+                                        class="flex w-full items-center gap-3 px-4 py-3 text-left text-sm
+                                               transition-colors hover:bg-teal-50 dark:hover:bg-teal-900/20"
+                                    >
+                                        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full
+                                                     bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400">
+                                            <IconStethoscope size={14} aria-hidden="true" />
+                                        </span>
+                                        <span class="min-w-0 flex-1">
+                                            <span class="block font-medium text-stone-900 dark:text-stone-50">
+                                                {u.surnames}, {u.names}
+                                            </span>
+                                            {#if u.specialtyName}
+                                                <span class="block text-xs text-stone-400">{u.specialtyName}</span>
+                                            {/if}
+                                        </span>
+                                    </button>
+                                </li>
+                            {/each}
+                        </ul>
+                    {:else if doctorSearch.trim() && !doctorLoading}
+                        <p class="mt-2 text-sm text-stone-400">Sin resultados para "{doctorSearch}".</p>
+                    {/if}
+                {/if}
+            </div>
+
+            <!-- Availability slots -->
+            {#if bookAppointment.selectedDoctorCode}
+                <div class="space-y-3 border-t border-stone-100 pt-4 dark:border-stone-800">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-semibold text-stone-700 dark:text-stone-300">Horarios disponibles</p>
+                        <div class="flex items-center gap-1">
                             <button
                                 type="button"
-                                onclick={() => selectDoctor(u)}
-                                class="flex w-full items-center gap-3 px-4 py-3 text-left text-sm
-                                       hover:bg-stone-50 dark:hover:bg-stone-800/50"
+                                onclick={prevMonth}
+                                aria-label="Mes anterior"
+                                class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg border border-stone-200
+                                       text-stone-500 transition-colors hover:bg-stone-50
+                                       dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800"
                             >
-                                <span class="font-medium text-stone-900 dark:text-stone-50">
-                                    {u.surnames}, {u.names}
-                                </span>
-                                <span class="text-xs text-stone-400">{u.specialtyName ?? ''}</span>
+                                <IconChevronLeft size={14} aria-hidden="true" />
                             </button>
-                        </li>
-                    {/each}
-                </ul>
-            {:else if doctorSearch.trim() && !doctorLoading}
-                <p class="text-xs text-stone-400">Sin resultados.</p>
-            {/if}
-
-            {#if bookAppointment.selectedDoctorCode}
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-medium text-stone-700 dark:text-stone-300">
-                            Disponibilidad de {bookAppointment.selectedDoctorName}
-                        </p>
-                        <div class="flex items-center gap-2">
-                            <button type="button" onclick={prevMonth}
-                                class="rounded-lg border border-stone-200 px-2 py-1 text-xs hover:bg-stone-50
-                                       dark:border-stone-700 dark:hover:bg-stone-800">
-                                ‹
-                            </button>
-                            <span class="text-xs font-medium text-stone-600 dark:text-stone-400">{currentMonth}</span>
-                            <button type="button" onclick={nextMonth}
-                                class="rounded-lg border border-stone-200 px-2 py-1 text-xs hover:bg-stone-50
-                                       dark:border-stone-700 dark:hover:bg-stone-800">
-                                ›
+                            <span class="min-w-[110px] text-center text-sm font-medium text-stone-700 dark:text-stone-300">
+                                {fmtMonth(currentMonth)}
+                            </span>
+                            <button
+                                type="button"
+                                onclick={nextMonth}
+                                aria-label="Mes siguiente"
+                                class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg border border-stone-200
+                                       text-stone-500 transition-colors hover:bg-stone-50
+                                       dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800"
+                            >
+                                <IconChevronRight size={14} aria-hidden="true" />
                             </button>
                         </div>
                     </div>
+
                     {#if slotsLoading}
                         <div class="space-y-2">
                             {#each [1, 2, 3] as n (n)}
@@ -261,14 +401,14 @@
                             {/each}
                         </div>
                     {:else if slotsError}
-                        <p class="text-xs text-rose-600 dark:text-rose-400">{slotsError}</p>
+                        <p class="text-sm text-rose-600 dark:text-rose-400">{slotsError}</p>
                     {:else if sortedDates.length === 0}
-                        <p class="text-xs text-stone-400">Sin horarios disponibles para este mes.</p>
+                        <p class="text-sm text-stone-400">Sin horarios disponibles para {fmtMonth(currentMonth)}.</p>
                     {:else}
-                        <div class="space-y-3">
+                        <div class="space-y-4">
                             {#each sortedDates as d (d)}
                                 <div>
-                                    <p class="mb-1.5 text-xs font-medium text-stone-500 dark:text-stone-400">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">
                                         {fmtDate(d)}
                                     </p>
                                     <div class="flex flex-wrap gap-2">
@@ -277,7 +417,7 @@
                                                 type="button"
                                                 onclick={() => bookAppointment.selectSlot(slot)}
                                                 class="rounded-lg border border-teal-300 px-3 py-1.5 text-xs font-medium
-                                                       text-teal-700 transition-colors hover:bg-teal-50
+                                                       text-teal-700 transition-colors hover:border-teal-500 hover:bg-teal-50
                                                        dark:border-teal-700 dark:text-teal-400 dark:hover:bg-teal-900/20"
                                             >
                                                 {slot.startTime}
@@ -290,11 +430,6 @@
                     {/if}
                 </div>
             {/if}
-
-            <button type="button" onclick={() => bookAppointment.goBack()}
-                class="text-sm text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200">
-                ← Cambiar paciente
-            </button>
         </div>
     {/if}
 
@@ -302,67 +437,67 @@
     {#if bookAppointment.step === 3}
         <div class="space-y-5 rounded-xl border border-stone-200 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
             <!-- Summary -->
-            <div class="space-y-1 rounded-lg bg-stone-50 p-4 text-sm dark:bg-stone-800/50">
-                <p class="font-medium text-stone-700 dark:text-stone-300">Resumen</p>
-                <p class="text-stone-600 dark:text-stone-400">
-                    <span class="font-medium">Paciente:</span>
-                    {bookAppointment.selectedPatient?.surnames}, {bookAppointment.selectedPatient?.names}
-                </p>
-                <p class="text-stone-600 dark:text-stone-400">
-                    <span class="font-medium">Médico:</span> {bookAppointment.selectedDoctorName}
-                </p>
-                <p class="text-stone-600 dark:text-stone-400">
-                    <span class="font-medium">Horario:</span>
-                    {bookAppointment.selectedSlot?.date} — {bookAppointment.selectedSlot?.startTime}
-                </p>
+            <div class="space-y-2 rounded-lg bg-stone-50 p-4 dark:bg-stone-800/50">
+                <p class="text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">Resumen</p>
+                <div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm">
+                    <span class="font-medium text-stone-600 dark:text-stone-400">Paciente</span>
+                    <span class="text-stone-900 dark:text-stone-50">
+                        {bookAppointment.selectedPatient?.surnames}, {bookAppointment.selectedPatient?.names}
+                    </span>
+                    <span class="font-medium text-stone-600 dark:text-stone-400">Médico</span>
+                    <span class="text-stone-900 dark:text-stone-50">{bookAppointment.selectedDoctorName}</span>
+                    <span class="font-medium text-stone-600 dark:text-stone-400">Fecha</span>
+                    <span class="text-stone-900 dark:text-stone-50">
+                        {fmtDate(bookAppointment.selectedSlot?.date ?? '')}
+                    </span>
+                    <span class="font-medium text-stone-600 dark:text-stone-400">Hora</span>
+                    <span class="text-stone-900 dark:text-stone-50">{bookAppointment.selectedSlot?.startTime}</span>
+                </div>
             </div>
 
             <!-- Consultation type -->
             <div>
-                <p class="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">Tipo de consulta</p>
-                <div class="flex gap-3">
+                <p class="mb-2.5 text-sm font-semibold text-stone-700 dark:text-stone-300">Tipo de consulta</p>
+                <div class="flex flex-wrap gap-2">
                     {#each bookAppointment.consultationTypes as ct (ct.code)}
-                        <label class="flex cursor-pointer items-center gap-2 text-sm">
-                            <input
-                                type="radio"
-                                name="consultation-type"
-                                value={ct.code}
-                                checked={bookAppointment.selectedConsultationTypeCode === ct.code}
-                                onchange={() => bookAppointment.setConsultationType(ct.code)}
-                                class="accent-teal-500"
-                            />
+                        <button
+                            type="button"
+                            onclick={() => bookAppointment.setConsultationType(ct.code)}
+                            class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors
+                                   {bookAppointment.selectedConsultationTypeCode === ct.code
+                                       ? 'border-teal-500 bg-teal-50 text-teal-700 dark:border-teal-600 dark:bg-teal-900/30 dark:text-teal-300'
+                                       : 'border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800'}"
+                        >
                             {ct.name}
-                        </label>
+                        </button>
                     {/each}
                 </div>
             </div>
 
-            <!-- Payment -->
+            <!-- Payment status -->
             <div>
-                <p class="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">Estado de pago</p>
-                <div class="flex gap-4">
-                    <label class="flex cursor-pointer items-center gap-2 text-sm">
-                        <input
-                            type="radio"
-                            name="payment-status"
-                            value="false"
-                            checked={!bookAppointment.isPaid}
-                            onchange={() => bookAppointment.setIsPaid(false)}
-                            class="accent-teal-500"
-                        />
+                <p class="mb-2.5 text-sm font-semibold text-stone-700 dark:text-stone-300">Estado de pago</p>
+                <div class="flex gap-2">
+                    <button
+                        type="button"
+                        onclick={() => bookAppointment.setIsPaid(false)}
+                        class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors
+                               {!bookAppointment.isPaid
+                                   ? 'border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-600 dark:bg-amber-900/30 dark:text-amber-300'
+                                   : 'border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800'}"
+                    >
                         Pendiente de pago
-                    </label>
-                    <label class="flex cursor-pointer items-center gap-2 text-sm">
-                        <input
-                            type="radio"
-                            name="payment-status"
-                            value="true"
-                            checked={bookAppointment.isPaid}
-                            onchange={() => bookAppointment.setIsPaid(true)}
-                            class="accent-teal-500"
-                        />
+                    </button>
+                    <button
+                        type="button"
+                        onclick={() => bookAppointment.setIsPaid(true)}
+                        class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors
+                               {bookAppointment.isPaid
+                                   ? 'border-teal-500 bg-teal-50 text-teal-700 dark:border-teal-600 dark:bg-teal-900/30 dark:text-teal-300'
+                                   : 'border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800'}"
+                    >
                         Pagado
-                    </label>
+                    </button>
                 </div>
             </div>
 
@@ -373,12 +508,12 @@
                 </div>
             {/if}
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 pt-1">
                 <button
                     type="button"
                     onclick={submit}
                     disabled={bookAppointment.submitting}
-                    class="rounded-lg bg-teal-500 px-6 py-2 text-sm font-medium text-white transition-colors
+                    class="rounded-lg bg-teal-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors
                            hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50
                            dark:bg-teal-600 dark:hover:bg-teal-700"
                 >
@@ -387,7 +522,9 @@
                 <button
                     type="button"
                     onclick={() => bookAppointment.goBack()}
-                    class="text-sm text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
+                    class="cursor-pointer rounded-lg border border-stone-200 px-4 py-2.5 text-sm font-medium
+                           text-stone-600 transition-colors hover:bg-stone-50
+                           dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800"
                 >
                     ← Volver
                 </button>
