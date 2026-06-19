@@ -4,9 +4,11 @@
     import { onMount, untrack } from 'svelte';
     import { IconPlus, IconTrash } from '@tabler/icons-svelte';
     import SearchSelect from '$lib/components/ui/SearchSelect.svelte';
+    import DatePicker from '$lib/components/ui/DatePicker.svelte';
     import {
         prescriptionApi,
         type PrescriptionResponse,
+        type MedicationLookupItem,
         type PrescriptionLookupItem
     } from '$lib/api/prescriptionApi';
     import { medicalProfile } from '../stores/medicalProfile.svelte';
@@ -27,6 +29,11 @@
         diagnosticCode: string;
         onclose:        () => void;
     }
+    const TODAY = (() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })();
+
     let { open, prescription, diagnosticCode, onclose }: Props = $props();
 
     const isEdit = $derived(prescription !== null);
@@ -62,7 +69,7 @@
         )
     );
 
-    let medications         = $state<PrescriptionLookupItem[]>([]);
+    let medications          = $state<MedicationLookupItem[]>([]);
     let administrationRoutes = $state<PrescriptionLookupItem[]>([]);
     let frequencies          = $state<PrescriptionLookupItem[]>([]);
     let loadingLookups       = $state(true);
@@ -72,6 +79,13 @@
     let errors  = $state<{ validUntil?: string; lines?: string }>({});
 
     const medicationOptions = $derived(medications.map(m => ({ value: m.code, label: m.name })));
+
+    function applyMedicationDefaults(index: number, code: string): void {
+        const med = medications.find(m => m.code === code);
+        if (!med) return;
+        lines[index].dose                    = med.defaultDose;
+        lines[index].administrationRouteCode = med.defaultAdministrationRouteCode;
+    }
 
     onMount(async () => {
         try {
@@ -223,13 +237,15 @@
                                 <label for="rx-valid-until" class={fieldLabel}>
                                     Válida hasta <span class="text-rose-500" aria-hidden="true">*</span>
                                 </label>
-                                <input
+                                <DatePicker
                                     id="rx-valid-until"
-                                    type="date"
                                     bind:value={validUntil}
                                     disabled={medicalProfile.submitting}
-                                    class="{inputCls} {touched && errors.validUntil
-                                        ? 'border-rose-500 dark:border-rose-500' : ''}"
+                                    placeholder="Seleccionar fecha…"
+                                    minDate={TODAY}
+                                    class={touched && errors.validUntil
+                                        ? 'border-rose-500 bg-white focus:border-rose-500 dark:border-rose-500 dark:bg-stone-900'
+                                        : 'border-stone-200 bg-white focus:border-teal-500 dark:border-stone-700 dark:bg-stone-900'}
                                 />
                                 {#if touched && errors.validUntil}
                                     <p class={fieldError}>{errors.validUntil}</p>
@@ -315,6 +331,7 @@
                                                     placeholder="Seleccionar medicamento…"
                                                     searchPlaceholder="Buscar medicamento…"
                                                     disabled={medicalProfile.submitting}
+                                                    onchange={(code) => applyMedicationDefaults(i, code)}
                                                 />
                                             </div>
 

@@ -33,9 +33,16 @@ export interface PrescriptionLookupItem {
     name: string;
 }
 
+export interface MedicationLookupItem {
+    code: string;
+    name: string;
+    defaultDose: string;
+    defaultAdministrationRouteCode: string;
+}
+
 export interface PrescriptionLookupsResponse {
     prescriptionStatuses: PrescriptionLookupItem[];
-    medications: PrescriptionLookupItem[];
+    medications: MedicationLookupItem[];
     administrationRoutes: PrescriptionLookupItem[];
     frequencies: PrescriptionLookupItem[];
 }

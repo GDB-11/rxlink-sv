@@ -40,7 +40,7 @@
             onclick={toggle}
             disabled={loading}
             class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors
-                   disabled:cursor-not-allowed disabled:opacity-50
+                   disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer
                    {isPendiente
                        ? 'bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700'
                        : 'border border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-900/20'}"

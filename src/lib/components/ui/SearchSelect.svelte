@@ -15,6 +15,7 @@
         disabled?: boolean;
         id?: string;
         class?: string;
+        onchange?: (value: string) => void;
     }
 
     let {
@@ -24,7 +25,8 @@
         searchPlaceholder = 'Buscar…',
         disabled          = false,
         id,
-        class: className  = ''
+        class: className  = '',
+        onchange
     }: Props = $props();
 
     let open       = $state(false);
@@ -63,6 +65,7 @@
     function selectOption(opt: Option) {
         value = opt.value;
         open  = false;
+        onchange?.(opt.value);
     }
 
     $effect(() => {
