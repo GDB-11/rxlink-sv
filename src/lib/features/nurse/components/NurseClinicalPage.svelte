@@ -1,41 +1,51 @@
-<!-- src/lib/features/medical-profile/components/MedicalProfilePage.svelte -->
+<!-- src/lib/features/nurse/components/NurseClinicalPage.svelte -->
 <script lang="ts">
-    import { auth } from '$lib/features/auth';
-    import { medicalProfile } from '../stores/medicalProfile.svelte';
-    import PatientProfileHeader from './PatientProfileHeader.svelte';
-    import AllergiesSection from './AllergiesSection.svelte';
-    import DiagnosticsSection from './DiagnosticsSection.svelte';
+    import { medicalProfile } from '$lib/features/medical-profile/stores/medicalProfile.svelte';
+    import PatientProfileHeader from '$lib/features/medical-profile/components/PatientProfileHeader.svelte';
+    import NurseAllergySection from './NurseAllergySection.svelte';
+    import NurseDiagnosticsSection from './NurseDiagnosticsSection.svelte';
+    import DispenseConfirmModal from './DispenseConfirmModal.svelte';
 
     interface Props {
         patientCode: string;
     }
     let { patientCode }: Props = $props();
 
-    const isDoctor = $derived(auth.roleName === 'Doctor');
-    const isNurse  = $derived(auth.roleName === 'Enfermero');
+    let dispenseModalOpen        = $state(false);
+    let selectedPrescriptionCode = $state('');
 
     $effect(() => {
         if (patientCode) medicalProfile.load(patientCode);
     });
 
-    function handlePersonUpdated(): void {
-        medicalProfile.load(patientCode);
+    function openDispense(code: string): void {
+        selectedPrescriptionCode = code;
+        dispenseModalOpen        = true;
     }
+
+    function closeDispense(): void {
+        dispenseModalOpen        = false;
+        selectedPrescriptionCode = '';
+    }
+
+    const patientName = $derived(
+        medicalProfile.patient
+            ? `${medicalProfile.patient.surnames}, ${medicalProfile.patient.names}`
+            : ''
+    );
 </script>
 
 <div class="space-y-6">
 
-    <!-- Back link -->
     <a
-        href="/pacientes"
+        href="/enfermero"
         class="inline-flex items-center gap-1.5 text-sm text-stone-500 transition-colors
                hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-50"
     >
         <span aria-hidden="true">←</span>
-        Volver a pacientes
+        Volver a búsqueda
     </a>
 
-    <!-- Loading state -->
     {#if medicalProfile.loading && !medicalProfile.patient}
         <div class="flex items-center justify-center py-20">
             <span
@@ -45,7 +55,6 @@
             ></span>
         </div>
 
-    <!-- Error state -->
     {:else if medicalProfile.error && !medicalProfile.patient}
         <div class="rounded-xl border border-rose-200 bg-rose-50 px-6 py-5 dark:border-rose-800 dark:bg-rose-900/30">
             <p class="text-sm text-rose-700 dark:text-rose-400">{medicalProfile.error}</p>
@@ -59,30 +68,39 @@
             </button>
         </div>
 
-    <!-- Content -->
     {:else if medicalProfile.patient}
-        <PatientProfileHeader
-            patient={medicalProfile.patient}
-            onupdated={handlePersonUpdated}
-        />
+        <PatientProfileHeader patient={medicalProfile.patient} />
 
         <hr class="border-stone-200 dark:border-stone-700" />
 
-        <AllergiesSection
+        <NurseAllergySection
             allergies={medicalProfile.patient.allergies}
-            {isDoctor}
+            submitting={medicalProfile.submitting}
+            submitError={medicalProfile.submitError}
         />
 
         <hr class="border-stone-200 dark:border-stone-700" />
 
-        <DiagnosticsSection
+        <NurseDiagnosticsSection
             diagnostics={medicalProfile.diagnostics}
+            loading={medicalProfile.loading}
+            totalCount={medicalProfile.totalCount}
             page={medicalProfile.page}
             totalPages={medicalProfile.totalPages}
-            {isDoctor}
-            {isNurse}
-            appointmentCode={null}
+            onpage={(p) => medicalProfile.setPage(p)}
+            ondispense={openDispense}
         />
     {/if}
 
 </div>
+
+{#if dispenseModalOpen}
+    {#key selectedPrescriptionCode}
+        <DispenseConfirmModal
+            open={true}
+            prescriptionCode={selectedPrescriptionCode}
+            {patientName}
+            onclose={closeDispense}
+        />
+    {/key}
+{/if}

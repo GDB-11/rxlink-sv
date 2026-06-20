@@ -21,7 +21,9 @@
         IconLayoutDashboard,
         IconStethoscope,
         IconCalendar,
-        IconCalendarPlus
+        IconCalendarPlus,
+        IconClipboardHeart,
+        IconNurse
     } from '@tabler/icons-svelte';
     import { auth } from '$lib/features/auth';
     import { navigation } from '../stores/navigation.svelte';
@@ -53,7 +55,9 @@
         'arrow-bar-right':  IconArrowBarRight,
         'stethoscope':      IconStethoscope,
         'calendar':         IconCalendar,
-        'calendar-plus':    IconCalendarPlus
+        'calendar-plus':    IconCalendarPlus,
+        'clipboard-heart':  IconClipboardHeart,
+        'nurse':            IconNurse
     };
 
     function isActive(path: string): boolean {

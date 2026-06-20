@@ -125,7 +125,7 @@
         role="listbox"
         aria-label="Opciones"
         style={popupStyle}
-        class="fixed z-[100] overflow-hidden rounded-xl border border-stone-200
+        class="fixed z-100 overflow-hidden rounded-xl border border-stone-200
                bg-white shadow-2xl dark:border-stone-700 dark:bg-stone-800"
     >
         <!-- Search bar -->
