@@ -144,9 +144,12 @@
         <!-- User info + logout -->
         <div class="shrink-0 space-y-1 border-t border-stone-100 px-2 py-3 dark:border-stone-800">
             {#if auth.user}
-                <div
+                <a
+                    href="/perfil"
                     class="flex items-center gap-3 rounded-lg bg-stone-50 px-3
-                           py-2.5 dark:bg-stone-800/60"
+                           py-2.5 transition-colors hover:bg-stone-100
+                           dark:bg-stone-800/60 dark:hover:bg-stone-700/60"
+                    aria-label="Ver mi perfil"
                 >
                     <div
                         class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full
@@ -164,7 +167,7 @@
                             {auth.user.username}
                         </p>
                     </div>
-                </div>
+                </a>
             {/if}
 
             <!-- Logout (mobile) -->

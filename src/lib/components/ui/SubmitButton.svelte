@@ -4,14 +4,15 @@
 		isLoading: boolean;
 		label: string;
 		loadingLabel: string;
+		disabled?: boolean;
 	}
 
-	let { isLoading, label, loadingLabel }: Props = $props();
+	let { isLoading, label, loadingLabel, disabled = false }: Props = $props();
 </script>
 
 <button
 	type="submit"
-	disabled={isLoading}
+	disabled={isLoading || disabled}
 	class="flex w-full items-center justify-center gap-2
            rounded-lg bg-teal-500 px-4 py-2.5 text-sm
            font-medium text-white

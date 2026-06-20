@@ -5,19 +5,24 @@
 
 	interface Props {
 		value: string;
+		id?: string;
+		placeholder?: string;
+		autocomplete?: HTMLInputElement['autocomplete'];
 		disabled?: boolean;
 	}
 
-	let { value = $bindable(''), disabled = false }: Props = $props();
+	let {
+		value        = $bindable(''),
+		id           = 'password',
+		placeholder  = 'Su contraseña',
+		autocomplete = 'current-password',
+		disabled     = false
+	}: Props = $props();
 
 	let showPassword = $state(false);
 </script>
 
 <div>
-	<label for="password" class="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">
-		Contraseña
-	</label>
-
 	<div class="relative">
 		<div
 			class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5"
@@ -41,12 +46,12 @@
 		</div>
 
 		<input
-			id="password"
+			{id}
 			type={showPassword ? 'text' : 'password'}
 			bind:value
-			autocomplete="current-password"
+			{autocomplete}
 			{disabled}
-			placeholder="Su contraseña"
+			{placeholder}
 			class="w-full rounded-lg border border-stone-200 bg-white py-2.5
                    pr-11 pl-10
                    text-sm text-stone-900 transition-all
