@@ -1,0 +1,11 @@
+node_modules
+.svelte-kit
+build
+.git
+.vscode
+.cursor
+.claude
+.env*
+*.md
+capitulo*.txt
+introduccion.txt
