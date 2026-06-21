@@ -11,7 +11,8 @@
     }
     let { userCode }: Props = $props();
 
-    const isAdmin = $derived(auth.roleName === 'Administrador');
+    const isAdmin  = $derived(auth.roleName === 'Administrador');
+    const backHref = $derived(isAdmin ? '/doctores' : '/inicio');
 
     let addModalOpen = $state(false);
     let modalKey     = $state(0);
@@ -40,12 +41,12 @@
 
     {:else if availability.error && !availability.doctor}
         <a
-            href="/doctores"
+            href={backHref}
             class="inline-flex items-center gap-1.5 text-sm text-stone-500 transition-colors
                    hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-50"
         >
             <span aria-hidden="true">←</span>
-            Volver a doctores
+            {isAdmin ? 'Volver a doctores' : 'Volver al inicio'}
         </a>
         <div class="rounded-xl border border-rose-200 bg-rose-50 px-6 py-5 dark:border-rose-800 dark:bg-rose-900/30">
             <p class="text-sm text-rose-700 dark:text-rose-400">{availability.error}</p>
@@ -64,6 +65,7 @@
             doctor={availability.doctor}
             month={availability.month}
             {isAdmin}
+            {backHref}
             onadd={openAddModal}
         />
 

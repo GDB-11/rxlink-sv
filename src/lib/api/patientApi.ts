@@ -63,6 +63,10 @@ export const patientApi = {
         return api.get<PatientResponse>(`/api/patient/${code}`);
     },
 
+    getByPersonCode(personCode: string): Promise<PatientResponse> {
+        return api.get<PatientResponse>(`/api/patient/by-person/${personCode}`);
+    },
+
     getPage(page: number, pageSize: number, search?: string): Promise<PatientPageResponse> {
         const params = new URLSearchParams({
             page: String(page),

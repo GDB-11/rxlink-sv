@@ -5,12 +5,13 @@
     import { availability } from '../stores/availability.svelte';
 
     interface Props {
-        doctor:  UserResponse;
-        month:   string;   // "YYYY-MM"
-        isAdmin: boolean;
-        onadd:   () => void;
+        doctor:   UserResponse;
+        month:    string;   // "YYYY-MM"
+        isAdmin:  boolean;
+        backHref: string;
+        onadd:    () => void;
     }
-    let { doctor, month, isAdmin, onadd }: Props = $props();
+    let { doctor, month, isAdmin, backHref, onadd }: Props = $props();
 
     const MONTHS = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -43,12 +44,12 @@
 
 <div class="space-y-3">
     <a
-        href="/doctores"
+        href={backHref}
         class="inline-flex items-center gap-1.5 text-sm text-stone-500 transition-colors
                hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-50"
     >
         <span aria-hidden="true">←</span>
-        Volver a doctores
+        {isAdmin ? 'Volver a doctores' : 'Volver al inicio'}
     </a>
 
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -7,7 +7,7 @@
     import type { PersonResponse } from '$lib/api/personApi';
     import PersonPicker from '$lib/components/ui/PersonPicker.svelte';
     import TextInput from '$lib/components/ui/TextInput.svelte';
-    import AllergySelector from './AllergySelector.svelte';
+    import AllergySelector from '$lib/components/ui/AllergySelector.svelte';
 
     interface Props {
         mode: 'create' | 'edit';

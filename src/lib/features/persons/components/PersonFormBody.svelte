@@ -3,11 +3,14 @@
 <script lang="ts">
     import { untrack } from 'svelte';
     import type { PersonResponse, PersonRequestBody } from '$lib/api/personApi';
+    import type { CreatePatientAllergyItem } from '$lib/api/patientApi';
     import type { PersonLookups } from '../stores/persons.svelte';
     import DatePicker from '$lib/components/ui/DatePicker.svelte';
     import PhoneInput from '$lib/components/ui/PhoneInput.svelte';
     import SearchSelect from '$lib/components/ui/SearchSelect.svelte';
     import TextInput from '$lib/components/ui/TextInput.svelte';
+    import AllergySelector from '$lib/components/ui/AllergySelector.svelte';
+    import PersonAllergyEditor from './PersonAllergyEditor.svelte';
 
     interface Props {
         mode: 'create' | 'edit';
@@ -32,6 +35,7 @@
     let emergencyContactPhone = $state(untrack(() => initial?.emergencyContactPhone ?? ''));
     let documentTypeCode      = $state(untrack(() => initial?.documentTypeCode ?? ''));
     let documentNumber        = $state(untrack(() => initial?.documentNumber ?? ''));
+    let selectedAllergies     = $state<CreatePatientAllergyItem[]>([]);
 
     let fieldErrors = $state<Record<string, string>>({});
 
@@ -73,7 +77,8 @@
             EmergencyContactName:  emergencyContactName.trim() || null,
             EmergencyContactPhone: emergencyContactPhone.trim() || null,
             DocumentTypeCode:      documentTypeCode,
-            DocumentNumber:        documentNumber.trim()
+            DocumentNumber:        documentNumber.trim(),
+            Allergies:             mode === 'create' && selectedAllergies.length > 0 ? selectedAllergies : undefined
         });
     }
 
@@ -92,7 +97,7 @@
 </script>
 
 <form onsubmit={handleSubmit} novalidate>
-    <div class="max-h-[70vh] overflow-y-auto px-6 py-5">
+    <div class="max-h-[75vh] overflow-y-auto px-6 py-5">
 
         {#if error}
             <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm
@@ -215,6 +220,24 @@
                     <PhoneInput id="p-ecPhone" bind:value={emergencyContactPhone} disabled={submitting} format="### ### ###" />
                 </div>
             </div>
+        </div>
+
+        <!-- Allergies -->
+        <div class="mt-6">
+            <p class={sectionTitle}>
+                Alergias <span class={optionalLabel}>(opcional)</span>
+            </p>
+            {#if mode === 'create'}
+                <AllergySelector
+                    onchange={(a) => (selectedAllergies = a)}
+                    disabled={submitting}
+                />
+            {:else if initial}
+                <PersonAllergyEditor
+                    personCode={initial.personCode}
+                    disabled={submitting}
+                />
+            {/if}
         </div>
 
     </div>

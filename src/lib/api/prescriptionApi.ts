@@ -69,6 +69,27 @@ export interface UpdatePrescriptionBody {
     Details: PrescriptionDetailBody[];
 }
 
+export interface DoctorDraftPrescriptionResponse {
+    prescriptionCode: string;
+    patientCode: string;
+    patientNames: string;
+    patientSurnames: string;
+    diagnosticDescription: string;
+    createdAt: string;
+    detailCount: number;
+}
+
+export interface NurseDispensationResponse {
+    prescriptionCode: string;
+    patientCode: string;
+    patientNames: string;
+    patientSurnames: string;
+    diagnosticDescription: string;
+    dispensedAt: string;
+    detailCount: number;
+    medicationNames: string;
+}
+
 export const prescriptionApi = {
     getPrescription(code: string): Promise<PrescriptionResponse> {
         return api.get<PrescriptionResponse>(`/api/prescription/${code}`);
@@ -104,5 +125,14 @@ export const prescriptionApi = {
 
     getPrescriptionLookups(): Promise<PrescriptionLookupsResponse> {
         return api.get<PrescriptionLookupsResponse>('/api/lookups/prescriptions');
+    },
+
+    getDoctorDraftPrescriptions(): Promise<DoctorDraftPrescriptionResponse[]> {
+        return api.get<DoctorDraftPrescriptionResponse[]>('/api/doctor/prescriptions/drafts');
+    },
+
+    getNurseDispensations(date?: string): Promise<NurseDispensationResponse[]> {
+        const qs = date ? `?date=${date}` : '';
+        return api.get<NurseDispensationResponse[]>(`/api/nurse/dispensations${qs}`);
     }
 };

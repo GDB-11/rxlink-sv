@@ -1,6 +1,7 @@
 // src/lib/api/personApi.ts
 
 import { api } from './api';
+import type { CreatePatientAllergyItem } from './patientApi';
 
 export interface PersonResponse {
     personCode: string;
@@ -41,6 +42,7 @@ export interface PersonRequestBody {
     EmergencyContactPhone?: string | null;
     DocumentTypeCode: string;
     DocumentNumber: string;
+    Allergies?: CreatePatientAllergyItem[];
 }
 
 export const personApi = {

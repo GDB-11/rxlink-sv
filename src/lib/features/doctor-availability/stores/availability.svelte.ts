@@ -1,7 +1,9 @@
 // src/lib/features/doctor-availability/stores/availability.svelte.ts
 
 import { userApi, type UserResponse } from '$lib/api/userApi';
+import { profileApi } from '$lib/api/profileApi';
 import { availabilityApi, type AvailabilityResponse, type CreateAvailabilityRequest } from '$lib/api/availabilityApi';
+import { auth } from '$lib/features/auth';
 
 let _doctor      = $state<UserResponse | null>(null);
 let _slots       = $state<AvailabilityResponse[]>([]);
@@ -28,8 +30,11 @@ export const availability = {
         _loading    = true;
         _error      = null;
         try {
+            const doctorFetch = auth.roleName === 'Doctor'
+                ? profileApi.getMyProfile()
+                : userApi.getByCode(doctorCode);
             const [doctor, slots] = await Promise.all([
-                userApi.getByCode(doctorCode),
+                doctorFetch,
                 availabilityApi.getSlots(doctorCode, _month)
             ]);
             _doctor = doctor;
