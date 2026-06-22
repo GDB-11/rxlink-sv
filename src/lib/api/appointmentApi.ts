@@ -53,6 +53,10 @@ export const appointmentApi = {
         return api.patch<void>(`/api/appointment/${code}/complete`, {});
     },
 
+    noShow(code: string): Promise<void> {
+        return api.patch<void>(`/api/appointment/${code}/no-show`, {});
+    },
+
     adminCreate(body: {
         patientCode: string;
         availabilityCode: string;

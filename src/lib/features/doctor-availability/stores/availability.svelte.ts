@@ -25,8 +25,11 @@ export const availability = {
     get submitError(): string | null          { return _submitError; },
 
     async load(doctorCode: string, month?: string): Promise<void> {
+        const isNewDoctor = doctorCode !== _doctorCode;
         _doctorCode = doctorCode;
-        _month      = month ?? new Date().toISOString().slice(0, 7);
+        if (month !== undefined || isNewDoctor || !_month) {
+            _month = month ?? new Date().toISOString().slice(0, 7);
+        }
         _loading    = true;
         _error      = null;
         try {

@@ -53,6 +53,22 @@ export const consultations = {
         await this.load();
     },
 
+    async noShow(code: string): Promise<string | null> {
+        const prev = _items.find(a => a.appointmentCode === code);
+        _items = _items.map(a =>
+            a.appointmentCode === code ? { ...a, statusName: 'NoAsistio' } : a
+        );
+        try {
+            await appointmentApi.noShow(code);
+            return null;
+        } catch (err) {
+            if (prev) {
+                _items = _items.map(a => (a.appointmentCode === code ? prev : a));
+            }
+            return err instanceof Error ? err.message : 'Error al marcar inasistencia.';
+        }
+    },
+
     reset(): void {
         _items    = [];
         _total    = 0;

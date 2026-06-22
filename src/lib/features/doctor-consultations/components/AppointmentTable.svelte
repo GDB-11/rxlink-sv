@@ -4,10 +4,11 @@
     import AppointmentRow from './AppointmentRow.svelte';
 
     interface Props {
-        items:   AppointmentResponse[];
-        loading: boolean;
+        items:    AppointmentResponse[];
+        loading:  boolean;
+        onnoshow: (code: string) => Promise<string | null>;
     }
-    let { items, loading }: Props = $props();
+    let { items, loading, onnoshow }: Props = $props();
 
     const skeletonRows = [1, 2, 3, 4, 5];
 </script>
@@ -54,7 +55,7 @@
                 </tr>
             {:else}
                 {#each items as item (item.appointmentCode)}
-                    <AppointmentRow {item} />
+                    <AppointmentRow {item} {onnoshow} />
                 {/each}
             {/if}
         </tbody>

@@ -36,7 +36,11 @@
         </div>
     {/if}
 
-    <AppointmentTable items={consultations.items} loading={consultations.loading} />
+    <AppointmentTable
+        items={consultations.items}
+        loading={consultations.loading}
+        onnoshow={(code) => consultations.noShow(code)}
+    />
 
     {#if consultations.total > 0}
         <div class="flex items-center justify-between text-sm text-stone-500 dark:text-stone-400">
