@@ -61,13 +61,14 @@ export interface UpdateUserBody {
 }
 
 export const userApi = {
-    getPage(page: number, pageSize: number, search?: string, role?: string): Promise<UserPageResponse> {
+    getPage(page: number, pageSize: number, search?: string, role?: string, specialtyCode?: string): Promise<UserPageResponse> {
         const params = new URLSearchParams({
             page: String(page),
             pageSize: String(pageSize)
         });
         if (search?.trim()) params.set('search', search.trim());
         if (role) params.set('role', role);
+        if (specialtyCode) params.set('specialtyCode', specialtyCode);
         return api.get<UserPageResponse>(`/api/user?${params}`);
     },
 
