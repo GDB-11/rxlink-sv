@@ -1,15 +1,15 @@
-<!-- src/lib/features/specialties/components/SpecialtyTable.svelte -->
+<!-- src/lib/features/insurances/components/InsuranceTable.svelte -->
 <script lang="ts">
     import { IconPencil, IconBan, IconCircleCheck } from '@tabler/icons-svelte';
-    import type { SpecialtyResponse } from '$lib/api/specialtyApi';
-    import SpecialtyStatusBadge from './SpecialtyStatusBadge.svelte';
+    import type { InsuranceResponse } from '$lib/api/insuranceApi';
+    import InsuranceStatusBadge from './InsuranceStatusBadge.svelte';
 
     interface Props {
-        items: SpecialtyResponse[];
+        items: InsuranceResponse[];
         loading: boolean;
-        onEdit: (item: SpecialtyResponse) => void;
-        onDeactivate: (item: SpecialtyResponse) => void;
-        onActivate: (item: SpecialtyResponse) => void;
+        onEdit: (item: InsuranceResponse) => void;
+        onDeactivate: (item: InsuranceResponse) => void;
+        onActivate: (item: InsuranceResponse) => void;
     }
     let { items, loading, onEdit, onDeactivate, onActivate }: Props = $props();
 
@@ -23,8 +23,8 @@
                 <th class="px-4 py-3 text-left font-medium text-stone-600 dark:text-stone-400">
                     Nombre
                 </th>
-                <th class="hidden px-4 py-3 text-left font-medium text-stone-600 dark:text-stone-400 sm:table-cell">
-                    Precios
+                <th class="px-4 py-3 text-left font-medium text-stone-600 dark:text-stone-400">
+                    Cobertura
                 </th>
                 <th class="px-4 py-3 text-left font-medium text-stone-600 dark:text-stone-400">
                     Estado
@@ -41,8 +41,8 @@
                         <td class="px-4 py-3">
                             <div class="h-4 w-48 animate-pulse rounded bg-stone-200 dark:bg-stone-700"></div>
                         </td>
-                        <td class="hidden px-4 py-3 sm:table-cell">
-                            <div class="h-4 w-24 animate-pulse rounded bg-stone-200 dark:bg-stone-700"></div>
+                        <td class="px-4 py-3">
+                            <div class="h-4 w-14 animate-pulse rounded bg-stone-200 dark:bg-stone-700"></div>
                         </td>
                         <td class="px-4 py-3">
                             <div class="h-5 w-14 animate-pulse rounded-full bg-stone-200 dark:bg-stone-700"></div>
@@ -54,21 +54,21 @@
                 <tr>
                     <td colspan="4" class="px-4 py-12 text-center">
                         <p class="text-sm text-stone-500 dark:text-stone-400">
-                            No se encontraron especialidades.
+                            No se encontraron seguros.
                         </p>
                     </td>
                 </tr>
             {:else}
-                {#each items as item (item.specialtyCode)}
+                {#each items as item (item.insuranceCode)}
                     <tr class="transition-colors hover:bg-stone-50 dark:hover:bg-stone-800/40">
                         <td class="px-4 py-3 font-medium text-stone-900 dark:text-stone-50">
                             {item.name}
                         </td>
-                        <td class="hidden px-4 py-3 text-stone-600 dark:text-stone-400 sm:table-cell">
-                            S/ {item.priceInPerson.toFixed(2)} · S/ {item.priceVirtual.toFixed(2)}
+                        <td class="px-4 py-3 text-stone-600 dark:text-stone-400">
+                            {item.coveragePercentage}%
                         </td>
                         <td class="px-4 py-3">
-                            <SpecialtyStatusBadge isActive={item.isActive} />
+                            <InsuranceStatusBadge isActive={item.isActive} />
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center justify-end gap-1">

@@ -6,6 +6,8 @@ export interface SpecialtyResponse {
     specialtyCode: string;
     name: string;
     isActive: boolean;
+    priceInPerson: number;
+    priceVirtual: number;
 }
 
 export interface SpecialtyPageResponse {
@@ -18,6 +20,8 @@ export interface SpecialtyPageResponse {
 
 export interface SpecialtyRequestBody {
     Name: string;
+    PriceInPerson: number;
+    PriceVirtual: number;
 }
 
 export const specialtyApi = {

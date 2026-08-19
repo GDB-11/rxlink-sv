@@ -45,5 +45,13 @@
             <p class="text-xs text-stone-500 dark:text-stone-400">Especialidad</p>
             <p class="mt-0.5 font-medium text-stone-800 dark:text-stone-100">{appointment.specialtyName}</p>
         </div>
+        {#if appointment.patientAmount !== null}
+            <div>
+                <p class="text-xs text-stone-500 dark:text-stone-400">Pago</p>
+                <p class="mt-0.5 font-medium text-stone-800 dark:text-stone-100">
+                    S/ {appointment.patientAmount.toFixed(2)} · {appointment.insuranceName ?? 'Particular'}
+                </p>
+            </div>
+        {/if}
     </div>
 </div>

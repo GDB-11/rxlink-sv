@@ -5,8 +5,10 @@
     import { dashboard } from '../stores/dashboard.svelte';
     import DashboardGreeting from '$lib/components/ui/DashboardGreeting.svelte';
     import DashboardKpiCard from '$lib/components/ui/DashboardKpiCard.svelte';
-    import { appointmentApi } from '$lib/api/appointmentApi';
     import AdminAppointmentStatusBadge from '$lib/features/admin-appointments/components/AdminAppointmentStatusBadge.svelte';
+    import ConfirmPaymentModal from '$lib/features/admin-appointments/components/ConfirmPaymentModal.svelte';
+
+    let confirmPaymentTarget = $state<string | null>(null);
 
     onMount(() => {
         dashboard.loadAdmin();
@@ -47,11 +49,18 @@
         return d.toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
     }
 
-    async function confirmPayment(code: string) {
-        await appointmentApi.adminConfirmPayment(code);
+    async function handlePaymentConfirmed() {
+        confirmPaymentTarget = null;
         await dashboard.loadAdmin();
     }
 </script>
+
+<ConfirmPaymentModal
+    open={confirmPaymentTarget !== null}
+    appointmentCode={confirmPaymentTarget ?? ''}
+    onConfirmed={handlePaymentConfirmed}
+    oncancel={() => (confirmPaymentTarget = null)}
+/>
 
 <div class="flex flex-col gap-8">
     <DashboardGreeting fullName={auth.user?.fullName ?? ''} />
@@ -116,7 +125,7 @@
                         </div>
                         <button
                             type="button"
-                            onclick={() => confirmPayment(appt.appointmentCode)}
+                            onclick={() => (confirmPaymentTarget = appt.appointmentCode)}
                             class="shrink-0 rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-medium
                                    text-white hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400"
                         >

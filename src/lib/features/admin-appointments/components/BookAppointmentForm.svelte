@@ -8,6 +8,7 @@
     import { availabilityApi, type AvailabilityResponse } from '$lib/api/availabilityApi';
     import { bookAppointment } from '../stores/bookAppointment.svelte';
     import { adminAppointments } from '../stores/adminAppointments.svelte';
+    import PaymentMethodPicker from '$lib/components/ui/PaymentMethodPicker.svelte';
 
     onMount(async () => {
         bookAppointment.reset();
@@ -64,7 +65,7 @@
     }
 
     async function selectDoctor(u: UserResponse): Promise<void> {
-        bookAppointment.selectDoctor(u.userCode, `${u.surnames}, ${u.names}`);
+        bookAppointment.selectDoctor(u.userCode, `${u.surnames}, ${u.names}`, u.specialtyCode);
         doctorResults = [];
         doctorSearch  = '';
         await loadSlots();
@@ -474,31 +475,16 @@
                 </div>
             </div>
 
-            <!-- Payment status -->
+            <!-- Payment method -->
             <div>
-                <p class="mb-2.5 text-sm font-semibold text-stone-700 dark:text-stone-300">Estado de pago</p>
-                <div class="flex gap-2">
-                    <button
-                        type="button"
-                        onclick={() => bookAppointment.setIsPaid(false)}
-                        class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors
-                               {!bookAppointment.isPaid
-                                   ? 'border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-600 dark:bg-amber-900/30 dark:text-amber-300'
-                                   : 'border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800'}"
-                    >
-                        Pendiente de pago
-                    </button>
-                    <button
-                        type="button"
-                        onclick={() => bookAppointment.setIsPaid(true)}
-                        class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors
-                               {bookAppointment.isPaid
-                                   ? 'border-teal-500 bg-teal-50 text-teal-700 dark:border-teal-600 dark:bg-teal-900/30 dark:text-teal-300'
-                                   : 'border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800'}"
-                    >
-                        Pagado
-                    </button>
-                </div>
+                <p class="mb-2.5 text-sm font-semibold text-stone-700 dark:text-stone-300">Forma de pago</p>
+                <PaymentMethodPicker
+                    insurances={bookAppointment.insurances}
+                    basePrice={bookAppointment.basePrice}
+                    mode="booking"
+                    bind:paymentMode={bookAppointment.paymentMode}
+                    bind:insuranceCode={bookAppointment.selectedInsuranceCode}
+                />
             </div>
 
             {#if bookAppointment.error}

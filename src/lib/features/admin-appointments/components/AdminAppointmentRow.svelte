@@ -38,6 +38,11 @@
     </td>
     <td class="px-4 py-3">
         <AdminAppointmentStatusBadge statusName={item.statusName} />
+        {#if item.patientAmount !== null}
+            <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                S/ {item.patientAmount.toFixed(2)} · {item.insuranceName ?? 'Particular'}
+            </p>
+        {/if}
     </td>
     <td class="px-4 py-3 text-right">
         <PaymentToggle

@@ -1,6 +1,7 @@
 <!-- src/lib/features/admin-appointments/components/PaymentToggle.svelte -->
 <script lang="ts">
     import { appointmentApi } from '$lib/api/appointmentApi';
+    import ConfirmPaymentModal from './ConfirmPaymentModal.svelte';
 
     interface Props {
         appointmentCode: string;
@@ -9,21 +10,18 @@
     }
     let { appointmentCode, statusName, onToggled }: Props = $props();
 
-    let loading = $state(false);
-    let error   = $state<string | null>(null);
+    let loading   = $state(false);
+    let error     = $state<string | null>(null);
+    let modalOpen = $state(false);
 
     const isPendiente  = $derived(statusName === 'PendientePago');
     const isConfirmado = $derived(statusName === 'Confirmado');
 
-    async function toggle(): Promise<void> {
+    async function revert(): Promise<void> {
         loading = true;
         error   = null;
         try {
-            if (isPendiente) {
-                await appointmentApi.adminConfirmPayment(appointmentCode);
-            } else {
-                await appointmentApi.adminRevertPayment(appointmentCode);
-            }
+            await appointmentApi.adminRevertPayment(appointmentCode);
             onToggled();
         } catch (err) {
             error = err instanceof Error ? err.message : 'Error al actualizar el pago.';
@@ -31,13 +29,25 @@
             loading = false;
         }
     }
+
+    function handleConfirmed(): void {
+        modalOpen = false;
+        onToggled();
+    }
 </script>
+
+<ConfirmPaymentModal
+    open={modalOpen}
+    {appointmentCode}
+    onConfirmed={handleConfirmed}
+    oncancel={() => (modalOpen = false)}
+/>
 
 {#if isPendiente || isConfirmado}
     <div class="flex flex-col items-end gap-1">
         <button
             type="button"
-            onclick={toggle}
+            onclick={() => (isPendiente ? (modalOpen = true) : revert())}
             disabled={loading}
             class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors
                    disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer

@@ -18,6 +18,10 @@ export interface AppointmentResponse {
     date: string;
     time: string;
     createdAt: string;
+    insuranceName: string | null;
+    coveragePercentage: number | null;
+    baseAmount: number | null;
+    patientAmount: number | null;
 }
 
 export interface AppointmentPageResponse {
@@ -61,13 +65,22 @@ export const appointmentApi = {
         patientCode: string;
         availabilityCode: string;
         consultationTypeCode: string;
-        isPaid: boolean;
+        payNow: boolean;
+        insuranceCode: string | null;
     }): Promise<AppointmentResponse> {
-        return api.post<AppointmentResponse>('/api/admin/appointment', body);
+        return api.post<AppointmentResponse>('/api/admin/appointment', {
+            PatientCode: body.patientCode,
+            AvailabilityCode: body.availabilityCode,
+            ConsultationTypeCode: body.consultationTypeCode,
+            PayNow: body.payNow,
+            InsuranceCode: body.insuranceCode
+        });
     },
 
-    adminConfirmPayment(code: string): Promise<void> {
-        return api.patch<void>(`/api/appointment/${code}/admin-confirm-payment`, {});
+    adminConfirmPayment(code: string, insuranceCode: string | null): Promise<void> {
+        return api.patch<void>(`/api/appointment/${code}/admin-confirm-payment`, {
+            InsuranceCode: insuranceCode
+        });
     },
 
     adminRevertPayment(code: string): Promise<void> {

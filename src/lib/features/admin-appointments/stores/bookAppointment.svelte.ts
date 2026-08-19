@@ -1,18 +1,29 @@
 // src/lib/features/admin-appointments/stores/bookAppointment.svelte.ts
 
 import { appointmentApi, type AppointmentResponse } from '$lib/api/appointmentApi';
-import { lookupsApi, type GuidLookupItemResponse } from '$lib/api/lookupsApi';
+import {
+    lookupsApi,
+    type GuidLookupItemResponse,
+    type InsuranceLookupItemResponse,
+    type SpecialtyPricingLookupItemResponse
+} from '$lib/api/lookupsApi';
 import type { PatientResponse } from '$lib/api/patientApi';
 import type { AvailabilityResponse } from '$lib/api/availabilityApi';
+
+type PaymentMode = 'insurance' | 'particular' | 'later';
 
 let _step                         = $state<1 | 2 | 3>(1);
 let _selectedPatient              = $state<PatientResponse | null>(null);
 let _selectedDoctorCode           = $state('');
 let _selectedDoctorName           = $state('');
+let _selectedDoctorSpecialtyCode  = $state<string | null>(null);
 let _selectedSlot                 = $state<AvailabilityResponse | null>(null);
 let _consultationTypes            = $state<GuidLookupItemResponse[]>([]);
 let _selectedConsultationTypeCode = $state('');
-let _isPaid                       = $state(false);
+let _insurances                   = $state<InsuranceLookupItemResponse[]>([]);
+let _specialtyPricing             = $state<SpecialtyPricingLookupItemResponse[]>([]);
+let _paymentMode                  = $state<PaymentMode>('later');
+let _selectedInsuranceCode        = $state<string | null>(null);
 let _submitting                   = $state(false);
 let _error                        = $state<string | null>(null);
 
@@ -24,14 +35,30 @@ export const bookAppointment = {
     get selectedSlot()                 { return _selectedSlot; },
     get consultationTypes()            { return _consultationTypes; },
     get selectedConsultationTypeCode() { return _selectedConsultationTypeCode; },
-    get isPaid()                       { return _isPaid; },
+    get insurances()                   { return _insurances; },
+    get paymentMode()                  { return _paymentMode; },
+    set paymentMode(value: PaymentMode) { _paymentMode = value; },
+    get selectedInsuranceCode()        { return _selectedInsuranceCode; },
+    set selectedInsuranceCode(value: string | null) { _selectedInsuranceCode = value; },
     get submitting()                   { return _submitting; },
     get error()                        { return _error; },
+
+    get basePrice(): number | null {
+        if (!_selectedDoctorSpecialtyCode || !_selectedConsultationTypeCode) return null;
+        const pricing = _specialtyPricing.find(s => s.code === _selectedDoctorSpecialtyCode);
+        if (!pricing) return null;
+        const consultationType = _consultationTypes.find(
+            ct => ct.code === _selectedConsultationTypeCode
+        );
+        return consultationType?.name === 'Presencial' ? pricing.priceInPerson : pricing.priceVirtual;
+    },
 
     async init(): Promise<void> {
         try {
             const data = await lookupsApi.getAppointmentLookups();
             _consultationTypes = data.consultationTypes;
+            _insurances = data.insurances;
+            _specialtyPricing = data.specialties;
             if (_consultationTypes.length > 0) {
                 _selectedConsultationTypeCode = _consultationTypes[0].code;
             }
@@ -45,9 +72,10 @@ export const bookAppointment = {
         _step = 2;
     },
 
-    selectDoctor(code: string, name: string): void {
+    selectDoctor(code: string, name: string, specialtyCode: string | null = null): void {
         _selectedDoctorCode = code;
         _selectedDoctorName = name;
+        _selectedDoctorSpecialtyCode = specialtyCode;
     },
 
     selectSlot(slot: AvailabilityResponse): void {
@@ -57,10 +85,6 @@ export const bookAppointment = {
 
     setConsultationType(code: string): void {
         _selectedConsultationTypeCode = code;
-    },
-
-    setIsPaid(value: boolean): void {
-        _isPaid = value;
     },
 
     goBack(): void {
@@ -77,7 +101,8 @@ export const bookAppointment = {
                 patientCode:          _selectedPatient.patientCode,
                 availabilityCode:     _selectedSlot.availabilityCode,
                 consultationTypeCode: _selectedConsultationTypeCode,
-                isPaid:               _isPaid
+                payNow:               _paymentMode !== 'later',
+                insuranceCode:        _paymentMode === 'insurance' ? _selectedInsuranceCode : null
             });
             return result;
         } catch (err) {
@@ -93,9 +118,11 @@ export const bookAppointment = {
         _selectedPatient              = null;
         _selectedDoctorCode           = '';
         _selectedDoctorName           = '';
+        _selectedDoctorSpecialtyCode  = null;
         _selectedSlot                 = null;
         _selectedConsultationTypeCode = _consultationTypes[0]?.code ?? '';
-        _isPaid                       = false;
+        _paymentMode                  = 'later';
+        _selectedInsuranceCode        = null;
         _submitting                   = false;
         _error                        = null;
     }

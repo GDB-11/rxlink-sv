@@ -17,16 +17,34 @@
 
     // DB constraints (Specialty table):
     //   Name VARCHAR(100) NOT NULL
+    //   PriceInPerson, PriceVirtual NUMERIC(10,2) NOT NULL, API requires > 0
     const NAME_MAX = 100;
 
-    let name        = $state(untrack(() => initial?.name ?? ''));
-    let fieldErrors = $state<Record<string, string>>({});
+    let name          = $state(untrack(() => initial?.name ?? ''));
+    let priceInPerson = $state(untrack(() => initial?.priceInPerson?.toString() ?? ''));
+    let priceVirtual  = $state(untrack(() => initial?.priceVirtual?.toString() ?? ''));
+    let fieldErrors   = $state<Record<string, string>>({});
+
+    function parsePrice(raw: string): number {
+        return Number(raw.replace(',', '.'));
+    }
 
     function validate(): boolean {
         const e: Record<string, string> = {};
         const n = name.trim();
         if (!n) e.name = 'El nombre es requerido.';
         else if (n.length > NAME_MAX) e.name = `El nombre no debe superar ${NAME_MAX} caracteres.`;
+
+        const presencial = parsePrice(priceInPerson);
+        if (!priceInPerson.trim() || !Number.isFinite(presencial) || presencial <= 0) {
+            e.priceInPerson = 'Ingrese un precio presencial válido, mayor a S/ 0.';
+        }
+
+        const virtual = parsePrice(priceVirtual);
+        if (!priceVirtual.trim() || !Number.isFinite(virtual) || virtual <= 0) {
+            e.priceVirtual = 'Ingrese un precio virtual válido, mayor a S/ 0.';
+        }
+
         fieldErrors = e;
         return Object.keys(e).length === 0;
     }
@@ -34,7 +52,11 @@
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
         if (!validate()) return;
-        onsubmit({ Name: name.trim() });
+        onsubmit({
+            Name: name.trim(),
+            PriceInPerson: parsePrice(priceInPerson),
+            PriceVirtual: parsePrice(priceVirtual)
+        });
     }
 
     const dpNormal = 'border-stone-200 bg-white focus:border-teal-500 dark:border-stone-700 dark:bg-stone-900';
@@ -75,6 +97,56 @@
             {#if fieldErrors.name}
                 <p class={fieldError}>{fieldErrors.name}</p>
             {/if}
+        </div>
+
+        <!-- Prices -->
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="specialty-price-presencial" class={fieldLabel}>
+                    Precio presencial (S/) <span class={required} aria-hidden="true">*</span>
+                </label>
+                <input
+                    id="specialty-price-presencial"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    bind:value={priceInPerson}
+                    disabled={submitting}
+                    placeholder="ej. 80.00"
+                    class="w-full rounded-lg border px-3 py-2 text-sm transition-colors
+                           text-stone-900 placeholder:text-stone-400
+                           focus:outline-none focus:ring-2 focus:ring-teal-500/20
+                           disabled:cursor-not-allowed disabled:opacity-50
+                           dark:text-stone-50 dark:placeholder:text-stone-600
+                           {dpCls('priceInPerson')}"
+                />
+                {#if fieldErrors.priceInPerson}
+                    <p class={fieldError}>{fieldErrors.priceInPerson}</p>
+                {/if}
+            </div>
+            <div>
+                <label for="specialty-price-virtual" class={fieldLabel}>
+                    Precio virtual (S/) <span class={required} aria-hidden="true">*</span>
+                </label>
+                <input
+                    id="specialty-price-virtual"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    bind:value={priceVirtual}
+                    disabled={submitting}
+                    placeholder="ej. 50.00"
+                    class="w-full rounded-lg border px-3 py-2 text-sm transition-colors
+                           text-stone-900 placeholder:text-stone-400
+                           focus:outline-none focus:ring-2 focus:ring-teal-500/20
+                           disabled:cursor-not-allowed disabled:opacity-50
+                           dark:text-stone-50 dark:placeholder:text-stone-600
+                           {dpCls('priceVirtual')}"
+                />
+                {#if fieldErrors.priceVirtual}
+                    <p class={fieldError}>{fieldErrors.priceVirtual}</p>
+                {/if}
+            </div>
         </div>
     </div>
 
