@@ -3,6 +3,7 @@
     import DatePicker from '$lib/components/ui/DatePicker.svelte';
     import TimePicker from '$lib/components/ui/TimePicker.svelte';
     import { availability } from '../stores/availability.svelte';
+    import { todayIso } from '$lib/utils/date';
 
     interface Props {
         open:       boolean;
@@ -16,7 +17,7 @@
     let rows    = $state<SlotRow[]>([{ date: '', startTime: '' }]);
     let touched = $state(false);
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayIso();
 
     // Reactive validation — reruns whenever rows or touched change
     const rowErrors = $derived(

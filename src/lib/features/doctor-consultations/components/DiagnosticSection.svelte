@@ -3,6 +3,7 @@
     import { untrack } from 'svelte';
     import { diagnosticApi, type DiagnosticResponse } from '$lib/api/diagnosticApi';
     import { consultationRoom } from '../stores/consultationRoom.svelte';
+    import { todayIso } from '$lib/utils/date';
 
     interface Props {
         appointmentCode: string;
@@ -16,7 +17,7 @@
     let submitError = $state<string | null>(null);
 
     let description = $state(untrack(() => diagnostic?.description ?? ''));
-    let diagnosedAt = $state(untrack(() => diagnostic?.diagnosedAt?.slice(0, 10) ?? new Date().toISOString().slice(0, 10)));
+    let diagnosedAt = $state(untrack(() => diagnostic?.diagnosedAt?.slice(0, 10) ?? todayIso()));
     let notes       = $state(untrack(() => diagnostic?.notes ?? ''));
 
     let touched = $state(false);
@@ -31,7 +32,7 @@
 
     function startEdit(): void {
         description = diagnostic?.description ?? '';
-        diagnosedAt = diagnostic?.diagnosedAt?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
+        diagnosedAt = diagnostic?.diagnosedAt?.slice(0, 10) ?? todayIso();
         notes       = diagnostic?.notes ?? '';
         touched     = false;
         submitError = null;

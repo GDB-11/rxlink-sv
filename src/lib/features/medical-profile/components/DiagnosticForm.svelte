@@ -4,6 +4,7 @@
     import { untrack } from 'svelte';
     import { medicalProfile } from '../stores/medicalProfile.svelte';
     import type { DiagnosticResponse } from '$lib/api/diagnosticApi';
+    import { todayIso } from '$lib/utils/date';
 
     interface Props {
         open:            boolean;
@@ -16,7 +17,7 @@
     const isEdit = $derived(diagnostic !== null);
 
     let description = $state(untrack(() => diagnostic?.description ?? ''));
-    let diagnosedAt = $state(untrack(() => diagnostic?.diagnosedAt?.slice(0, 10) ?? new Date().toISOString().slice(0, 10)));
+    let diagnosedAt = $state(untrack(() => diagnostic?.diagnosedAt?.slice(0, 10) ?? todayIso()));
     let notes       = $state(untrack(() => diagnostic?.notes ?? ''));
 
     let touched = $state(false);

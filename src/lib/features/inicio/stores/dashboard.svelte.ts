@@ -2,6 +2,7 @@
 
 import { appointmentApi, type AppointmentResponse } from '$lib/api/appointmentApi';
 import { prescriptionApi, type DoctorDraftPrescriptionResponse, type NurseDispensationResponse } from '$lib/api/prescriptionApi';
+import { todayIso } from '$lib/utils/date';
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
 
@@ -22,12 +23,6 @@ let _doctorError         = $state<string | null>(null);
 let _dispensations       = $state<NurseDispensationResponse[]>([]);
 let _nurseLoading        = $state(false);
 let _nurseError          = $state<string | null>(null);
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function todayIso(): string {
-    return new Date().toISOString().slice(0, 10);
-}
 
 // ── Public store ──────────────────────────────────────────────────────────────
 

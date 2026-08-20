@@ -2,6 +2,7 @@
 <script lang="ts">
     import type { AvailabilityResponse } from '$lib/api/availabilityApi';
     import SlotChip from './SlotChip.svelte';
+    import { todayIso } from '$lib/utils/date';
 
     interface Props {
         day:            number;
@@ -14,12 +15,12 @@
     }
     let { day, date, isCurrentMonth, slots, hasAvailable, isAdmin, ondelete }: Props = $props();
 
-    const today   = new Date().toISOString().slice(0, 10);
+    const today   = todayIso();
     const isToday = $derived(date === today);
 </script>
 
 <div
-    class="relative min-h-[80px] border-r border-b border-stone-100 p-1.5 dark:border-stone-800
+    class="relative min-h-20 border-r border-b border-stone-100 p-1.5 dark:border-stone-800
            {!isCurrentMonth
                ? 'bg-stone-50/60 dark:bg-stone-900/40'
                : isToday
