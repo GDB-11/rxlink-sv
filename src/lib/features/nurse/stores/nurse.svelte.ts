@@ -1,6 +1,7 @@
 // src/lib/features/nurse/stores/nurse.svelte.ts
 
 import { patientApi, type PatientResponse } from '$lib/api/patientApi';
+import { breakGlassApi } from '$lib/api/breakGlassApi';
 
 let _results    = $state<PatientResponse[]>([]);
 let _search     = $state('');
@@ -11,6 +12,9 @@ let _totalCount = $state(0);
 let _loading    = $state(false);
 let _error      = $state<string | null>(null);
 
+let _breakGlassSubmitting = $state(false);
+let _breakGlassError      = $state<string | null>(null);
+
 export const nurse = {
     get results():    PatientResponse[] { return _results; },
     get search():     string            { return _search; },
@@ -20,6 +24,8 @@ export const nurse = {
     get totalCount(): number            { return _totalCount; },
     get loading():    boolean           { return _loading; },
     get error():      string | null     { return _error; },
+    get breakGlassSubmitting(): boolean { return _breakGlassSubmitting; },
+    get breakGlassError(): string | null { return _breakGlassError; },
 
     async searchPatients(query: string): Promise<void> {
         _search = query;
@@ -62,6 +68,28 @@ export const nurse = {
         }
     },
 
+    /**
+     * Opens a patient outside the nurse's care team. Returns the patient code to navigate to,
+     * or null when the request failed (the reason is in `breakGlassError`).
+     */
+    async requestBreakGlass(medicalRecordNumber: string, reason: string): Promise<string | null> {
+        _breakGlassSubmitting = true;
+        _breakGlassError      = null;
+        try {
+            const res = await breakGlassApi.request(medicalRecordNumber, reason);
+            return res.patientCode;
+        } catch (err) {
+            _breakGlassError = err instanceof Error ? err.message : 'No se pudo registrar el acceso de emergencia.';
+            return null;
+        } finally {
+            _breakGlassSubmitting = false;
+        }
+    },
+
+    clearBreakGlassError(): void {
+        _breakGlassError = null;
+    },
+
     reset(): void {
         _results    = [];
         _search     = '';
@@ -70,5 +98,7 @@ export const nurse = {
         _totalCount = 0;
         _loading    = false;
         _error      = null;
+        _breakGlassSubmitting = false;
+        _breakGlassError      = null;
     }
 };

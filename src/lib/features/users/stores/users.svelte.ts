@@ -1,6 +1,7 @@
 // src/lib/features/users/stores/users.svelte.ts
 
 import { userApi, type UserResponse, type CreateUserBody, type UpdateUserBody } from '$lib/api/userApi';
+import { mfaApi } from '$lib/api/mfaApi';
 import { lookupsApi, type GuidLookupItemResponse } from '$lib/api/lookupsApi';
 
 export interface UserLookups {
@@ -119,6 +120,20 @@ export const users = {
             return true;
         } catch (err) {
             _submitError = err instanceof Error ? err.message : 'Error al desactivar usuario.';
+            return false;
+        } finally {
+            _submitting = false;
+        }
+    },
+
+    async resetMfa(code: string): Promise<boolean> {
+        _submitting  = true;
+        _submitError = null;
+        try {
+            await mfaApi.resetForUser(code);
+            return true;
+        } catch (err) {
+            _submitError = err instanceof Error ? err.message : 'Error al restablecer la verificación en dos pasos.';
             return false;
         } finally {
             _submitting = false;

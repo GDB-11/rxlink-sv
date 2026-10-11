@@ -21,7 +21,7 @@
     const confirmMismatch = $derived(confirmPassword.length > 0 && confirmPassword !== newPassword);
     const canSubmit = $derived(
         currentPassword.length > 0 &&
-        newPassword.length >= 8 &&
+        newPassword.length >= 12 &&
         newPassword === confirmPassword &&
         !submitting
     );
@@ -71,7 +71,7 @@
             bind:value={newPassword}
             placeholder="Nueva contraseña"
             disabled={submitting}
-            minLength={8}
+            minLength={12}
         />
     </div>
 

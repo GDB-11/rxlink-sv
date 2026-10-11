@@ -3,6 +3,7 @@
     import { nurse } from '../stores/nurse.svelte';
     import NursePatientSearchBar from './NursePatientSearchBar.svelte';
     import NursePatientResults from './NursePatientResults.svelte';
+    import NurseBreakGlassPanel from './NurseBreakGlassPanel.svelte';
 
     $effect(() => {
         return () => nurse.reset();
@@ -18,7 +19,7 @@
             Buscar paciente
         </h1>
         <p class="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
-            Busque un paciente para consultar su historial clínico y dispensar recetas.
+            Busque entre sus pacientes (con receta activa o cita hoy) para consultar su historial clínico y dispensar recetas.
         </p>
     </div>
 </div>
@@ -46,3 +47,5 @@
     totalPages={nurse.totalPages}
     onpage={(p) => nurse.setPage(p)}
 />
+
+<NurseBreakGlassPanel />

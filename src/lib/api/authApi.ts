@@ -29,16 +29,41 @@ export interface LoginResponse {
     user: UserInfo;
 }
 
+/** 202 from login: password accepted, a second factor is required to finish. */
+export interface MfaChallenge {
+    mfaRequired: true;
+    mfaToken: string;
+    expiresAt: string;
+}
+
+export function isMfaChallenge(data: LoginResponse | MfaChallenge): data is MfaChallenge {
+    return 'mfaRequired' in data && data.mfaRequired === true;
+}
+
+interface MfaVerifyRequest {
+    MfaToken: string;
+    Code: string;
+}
+
 // ── API calls ─────────────────────────────────────────────────────────────────
 
 export const authApi = {
     /**
      * POST /api/auth/login
-     * Returns 200 LoginResponse | 401 | 500
+     * Returns 200 LoginResponse | 202 MfaChallenge (account has MFA) | 401 | 500
      */
-    login(username: string, password: string): Promise<LoginResponse> {
+    login(username: string, password: string): Promise<LoginResponse | MfaChallenge> {
         const body: LoginRequest = { Username: username, Password: password };
-        return api.post<LoginResponse>('/api/auth/login', body);
+        return api.post<LoginResponse | MfaChallenge>('/api/auth/login', body);
+    },
+
+    /**
+     * POST /api/auth/mfa/verify
+     * Completes an MFA login. Returns 200 LoginResponse | 401 | 500
+     */
+    verifyMfa(mfaToken: string, code: string): Promise<LoginResponse> {
+        const body: MfaVerifyRequest = { MfaToken: mfaToken, Code: code };
+        return api.post<LoginResponse>('/api/auth/mfa/verify', body);
     },
 
     /**

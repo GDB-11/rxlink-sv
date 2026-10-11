@@ -21,7 +21,7 @@ async function attemptRefresh(): Promise<string> {
     if (!res.ok) throw new ApiError(res.status, 'Token refresh failed');
 
     const data = (await res.json()) as LoginResponse;
-    auth.login(data);
+    auth.updateTokens(data);
     return data.accessToken;
 }
 

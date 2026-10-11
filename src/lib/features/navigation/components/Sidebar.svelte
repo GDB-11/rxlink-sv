@@ -23,7 +23,9 @@
         IconCalendar,
         IconCalendarPlus,
         IconClipboardHeart,
-        IconNurse
+        IconNurse,
+        IconReportAnalytics,
+        IconBuildingHospital
     } from '@tabler/icons-svelte';
     import { auth } from '$lib/features/auth';
     import { navigation } from '../stores/navigation.svelte';
@@ -57,7 +59,9 @@
         'calendar':         IconCalendar,
         'calendar-plus':    IconCalendarPlus,
         'clipboard-heart':  IconClipboardHeart,
-        'nurse':            IconNurse
+        'nurse':            IconNurse,
+        'report-analytics': IconReportAnalytics,
+        'building-hospital': IconBuildingHospital
     };
 
     function isActive(path: string): boolean {

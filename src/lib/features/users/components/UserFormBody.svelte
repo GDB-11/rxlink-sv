@@ -187,7 +187,7 @@
                             id="u-password"
                             bind:value={password}
                             disabled={submitting}
-                            minLength={8}
+                            minLength={12}
                             requireNumbers
                             requireUppercase
                             requireSpecial={true}

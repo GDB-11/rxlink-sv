@@ -10,6 +10,7 @@
     import UserForm from '$lib/features/users/components/UserForm.svelte';
     import DeactivateUserModal from '$lib/features/users/components/DeactivateUserModal.svelte';
     import ActivateUserModal from '$lib/features/users/components/ActivateUserModal.svelte';
+    import ResetMfaModal from '$lib/features/users/components/ResetMfaModal.svelte';
 
     let formOpen   = $state(false);
     let formMode   = $state<'create' | 'edit'>('create');
@@ -20,6 +21,9 @@
 
     let activateOpen   = $state(false);
     let activateTarget = $state<UserResponse | null>(null);
+
+    let resetMfaOpen   = $state(false);
+    let resetMfaTarget = $state<UserResponse | null>(null);
 
     onMount(() => users.loadPage());
 
@@ -47,6 +51,18 @@
         activateTarget = item;
         users.clearSubmitError();
         activateOpen = true;
+    }
+
+    function openResetMfa(item: UserResponse) {
+        resetMfaTarget = item;
+        users.clearSubmitError();
+        resetMfaOpen = true;
+    }
+
+    async function handleResetMfa() {
+        if (!resetMfaTarget) return;
+        const success = await users.resetMfa(resetMfaTarget.userCode);
+        if (success) resetMfaOpen = false;
     }
 
     async function handleFormSubmit(data: CreateUserBody | UpdateUserBody) {
@@ -128,6 +144,7 @@
     onEdit={openEdit}
     onDeactivate={openDeactivate}
     onActivate={openActivate}
+    onResetMfa={openResetMfa}
 />
 
 <!-- Pagination -->
@@ -174,4 +191,14 @@
     error={users.submitError}
     onconfirm={handleActivate}
     oncancel={() => (activateOpen = false)}
+/>
+
+<!-- Reset MFA confirmation modal -->
+<ResetMfaModal
+    open={resetMfaOpen}
+    userName={fullName(resetMfaTarget)}
+    submitting={users.submitting}
+    error={users.submitError}
+    onconfirm={handleResetMfa}
+    oncancel={() => (resetMfaOpen = false)}
 />

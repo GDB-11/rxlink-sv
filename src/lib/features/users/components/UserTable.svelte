@@ -1,6 +1,6 @@
 <!-- src/lib/features/users/components/UserTable.svelte -->
 <script lang="ts">
-    import { IconPencil, IconBan, IconCircleCheck } from '@tabler/icons-svelte';
+    import { IconPencil, IconBan, IconCircleCheck, IconShieldOff } from '@tabler/icons-svelte';
     import type { UserResponse } from '$lib/api/userApi';
     import UserStatusBadge from './UserStatusBadge.svelte';
 
@@ -10,8 +10,9 @@
         onEdit: (item: UserResponse) => void;
         onDeactivate: (item: UserResponse) => void;
         onActivate: (item: UserResponse) => void;
+        onResetMfa: (item: UserResponse) => void;
     }
-    let { items, loading, onEdit, onDeactivate, onActivate }: Props = $props();
+    let { items, loading, onEdit, onDeactivate, onActivate, onResetMfa }: Props = $props();
 
     const skeletonRows = [1, 2, 3, 4, 5];
 </script>
@@ -99,6 +100,16 @@
                                     aria-label="Editar {item.names} {item.surnames}"
                                 >
                                     <IconPencil size={16} aria-hidden="true" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick={() => onResetMfa(item)}
+                                    class="cursor-pointer rounded-lg p-1.5 text-stone-500 transition-colors
+                                           hover:bg-amber-50 hover:text-amber-700
+                                           dark:text-stone-400 dark:hover:bg-amber-900/30 dark:hover:text-amber-400"
+                                    aria-label="Restablecer verificación en dos pasos de {item.names} {item.surnames}"
+                                >
+                                    <IconShieldOff size={16} aria-hidden="true" />
                                 </button>
                                 {#if item.isActive}
                                     <button

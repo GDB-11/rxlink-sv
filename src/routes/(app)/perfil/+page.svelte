@@ -1,6 +1,7 @@
 <!-- src/routes/(app)/perfil/+page.svelte -->
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { MfaSetupCard } from '$lib/features/mfa';
     import { profile, ProfileInfoCard } from '$lib/features/profile';
     import { IconLock } from '@tabler/icons-svelte';
 
@@ -58,6 +59,7 @@
     <!-- Profile data -->
     {:else if profile.data}
         <ProfileInfoCard data={profile.data} />
+        <MfaSetupCard />
     {/if}
 
 </div>

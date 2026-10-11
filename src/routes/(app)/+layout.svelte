@@ -7,6 +7,8 @@
     import { auth } from '$lib/features/auth';
     import { authApi, ApiError } from '$lib/api/authApi';
     import { navigation, TopBar, Sidebar } from '$lib/features/navigation';
+    import SessionGuard from '$lib/features/auth/components/SessionGuard.svelte';
+    import type { SessionEndReason } from '$lib/features/auth/sessionPolicy';
 
     let { children } = $props();
 
@@ -32,7 +34,7 @@
         }
     });
 
-    async function handleLogout() {
+    async function handleLogout(reason?: SessionEndReason) {
         loggingOut = true;
         const refreshToken = auth.getRefreshToken();
         const accessToken  = auth.accessToken;
@@ -49,7 +51,7 @@
 
         navigation.reset();
         auth.logout();
-        await goto('/login');
+        await goto(reason ? `/login?reason=${reason}` : '/login');
     }
 </script>
 
@@ -61,6 +63,8 @@
         rel="stylesheet"
     />
 </svelte:head>
+
+<SessionGuard onexpire={handleLogout} />
 
 <!-- Mobile backdrop -->
 {#if sidebarOpen}
@@ -79,7 +83,7 @@
     <TopBar
         {sidebarOpen}
         onToggleSidebar={() => (sidebarOpen = !sidebarOpen)}
-        onLogout={handleLogout}
+        onLogout={() => handleLogout()}
         {loggingOut}
     />
 
@@ -87,7 +91,7 @@
     <div class="flex min-h-0 flex-1">
         <Sidebar
             open={sidebarOpen}
-            onLogout={handleLogout}
+            onLogout={() => handleLogout()}
             {loggingOut}
         />
 
