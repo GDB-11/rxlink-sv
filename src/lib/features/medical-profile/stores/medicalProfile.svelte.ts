@@ -1,5 +1,6 @@
 // src/lib/features/medical-profile/stores/medicalProfile.svelte.ts
 
+import { ApiError } from '$lib/api/api';
 import { patientApi, type PatientResponse, type PatientAllergyBody } from '$lib/api/patientApi';
 import {
     diagnosticApi,
@@ -11,6 +12,7 @@ import {
     prescriptionApi,
     type PrescriptionResponse,
     type CreatePrescriptionBody,
+    type DispenseLineBody,
     type UpdatePrescriptionBody
 } from '$lib/api/prescriptionApi';
 
@@ -24,6 +26,7 @@ let _loading     = $state(false);
 let _error       = $state<string | null>(null);
 let _submitting  = $state(false);
 let _submitError = $state<string | null>(null);
+let _insufficientStock = $state(false);
 
 let _patientCode = '';
 
@@ -61,6 +64,8 @@ export const medicalProfile = {
     get error()       { return _error; },
     get submitting()  { return _submitting; },
     get submitError() { return _submitError; },
+    /** The last dispense failed because the balance is too low; retrying needs an override reason. */
+    get insufficientStock() { return _insufficientStock; },
 
     async load(patientCode: string): Promise<void> {
         _patientCode = patientCode;
@@ -307,15 +312,17 @@ export const medicalProfile = {
         }
     },
 
-    async dispensePrescription(code: string): Promise<boolean> {
-        _submitting  = true;
-        _submitError = null;
+    async dispensePrescription(code: string, items: DispenseLineBody[], overrideReason?: string): Promise<boolean> {
+        _submitting        = true;
+        _submitError       = null;
+        _insufficientStock = false;
         try {
-            await prescriptionApi.dispensePrescription(code);
+            await prescriptionApi.dispensePrescription(code, items, overrideReason);
             const resp = await prescriptionApi.getPrescription(code);
             _applyPrescription(resp);
             return true;
         } catch (err) {
+            _insufficientStock = err instanceof ApiError && err.status === 409 && err.code === 'insufficient_stock';
             _submitError = err instanceof Error ? err.message : 'Error al dispensar la receta.';
             return false;
         } finally {
@@ -324,6 +331,7 @@ export const medicalProfile = {
     },
 
     clearSubmitError(): void {
-        _submitError = null;
+        _submitError       = null;
+        _insufficientStock = false;
     }
 };

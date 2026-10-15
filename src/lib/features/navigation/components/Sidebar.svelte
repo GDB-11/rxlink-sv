@@ -25,7 +25,9 @@
         IconClipboardHeart,
         IconNurse,
         IconReportAnalytics,
-        IconBuildingHospital
+        IconBuildingHospital,
+        IconFilePencil,
+        IconFileText
     } from '@tabler/icons-svelte';
     import { auth } from '$lib/features/auth';
     import { navigation } from '../stores/navigation.svelte';
@@ -61,7 +63,9 @@
         'clipboard-heart':  IconClipboardHeart,
         'nurse':            IconNurse,
         'report-analytics': IconReportAnalytics,
-        'building-hospital': IconBuildingHospital
+        'building-hospital': IconBuildingHospital,
+        'file-pencil':      IconFilePencil,
+        'file-text':        IconFileText
     };
 
     function isActive(path: string): boolean {

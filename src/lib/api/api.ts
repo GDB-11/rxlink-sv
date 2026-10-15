@@ -78,8 +78,8 @@ async function request<T>(
     }
 
     if (!response.ok) {
-        const body = await response.json().catch(() => ({})) as { message?: string };
-        throw new ApiError(response.status, body.message ?? response.statusText);
+        const body = await response.json().catch(() => ({})) as { message?: string; code?: string };
+        throw new ApiError(response.status, body.message ?? response.statusText, body.code);
     }
 
     if (response.status === 204) {
@@ -92,7 +92,9 @@ async function request<T>(
 export class ApiError extends Error {
     constructor(
         public readonly status: number,
-        message: string
+        message: string,
+        /** Machine-readable reason some endpoints add next to `message` (e.g. `insufficient_stock`). */
+        public readonly code?: string
     ) {
         super(message);
         this.name = 'ApiError';

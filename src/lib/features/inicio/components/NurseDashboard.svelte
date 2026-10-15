@@ -12,6 +12,7 @@
 
     onMount(() => {
         dashboard.loadNurse();
+        dashboard.loadLowStock();
         return () => {
             nurse.reset();
             dashboard.reset();
@@ -31,6 +32,12 @@
             label="Dispensaciones hoy"
             value={dashboard.nurseLoading ? '…' : dashboard.dispensations.length}
             colorClass="bg-teal-50 dark:bg-teal-900/30"
+        />
+        <DashboardKpiCard
+            label="Medicamentos con stock bajo"
+            value={dashboard.lowStockCount ?? '—'}
+            href="/inventario?stock=bajo"
+            colorClass="bg-amber-50 dark:bg-amber-900/30"
         />
     </div>
 

@@ -59,6 +59,11 @@ export interface PatientAllergyBody {
 }
 
 export const patientApi = {
+    /** Full copy of a patient's record (right of access); the shape is the API's JSON, kept as-is. */
+    exportRecord(code: string): Promise<unknown> {
+        return api.get<unknown>(`/api/patient/${code}/export`);
+    },
+
     getByCode(code: string): Promise<PatientResponse> {
         return api.get<PatientResponse>(`/api/patient/${code}`);
     },

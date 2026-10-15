@@ -5,6 +5,7 @@
     import type { PatientResponse } from '$lib/api/patientApi';
     import type { PersonResponse } from '$lib/api/personApi';
     import PersonEditModal from './PersonEditModal.svelte';
+    import ExportPatientRecordButton from './ExportPatientRecordButton.svelte';
 
     interface Props {
         patient: PatientResponse;
@@ -61,11 +62,13 @@
             </div>
         </div>
 
+        <div class="flex shrink-0 flex-wrap items-start gap-2 self-start">
+        <ExportPatientRecordButton {patient} />
         {#if isDoctor}
             <button
                 type="button"
                 onclick={() => (editOpen = true)}
-                class="flex shrink-0 cursor-pointer items-center gap-1.5 self-start rounded-lg
+                class="flex cursor-pointer items-center gap-1.5 rounded-lg
                        border border-stone-200 px-3 py-2 text-sm font-medium text-stone-600
                        transition-colors hover:bg-stone-50 hover:text-stone-900
                        dark:border-stone-700 dark:text-stone-400
@@ -75,6 +78,7 @@
                 Editar persona
             </button>
         {/if}
+        </div>
     </div>
 </div>
 

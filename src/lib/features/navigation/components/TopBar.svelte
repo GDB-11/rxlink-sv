@@ -10,7 +10,8 @@
         IconPill,
         IconMenu2,
         IconX,
-        IconStethoscope
+        IconStethoscope,
+        IconShieldLock
     } from '@tabler/icons-svelte';
     import { ThemeToggle } from '$lib/features/theme';
     import { auth } from '$lib/features/auth';
@@ -34,7 +35,8 @@
         'file-text':        IconFileText,
         'user-circle':      IconUserCircle,
         'pill':             IconPill,
-        'stethoscope':      IconStethoscope
+        'stethoscope':      IconStethoscope,
+        'shield-lock':      IconShieldLock
     };
 
     function getInitials(fullName: string): string {

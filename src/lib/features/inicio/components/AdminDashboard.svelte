@@ -12,6 +12,7 @@
 
     onMount(() => {
         dashboard.loadAdmin();
+        dashboard.loadLowStock();
         return () => dashboard.reset();
     });
 
@@ -73,7 +74,7 @@
     {/if}
 
     <!-- KPI cards -->
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
         <DashboardKpiCard
             label="Citas hoy"
             value={dashboard.adminLoadingAppts ? '…' : totalToday}
@@ -93,6 +94,12 @@
             label="Completadas"
             value={dashboard.adminLoadingAppts ? '…' : completedToday}
             colorClass="bg-sky-50 dark:bg-sky-900/30"
+        />
+        <DashboardKpiCard
+            label="Medicamentos con stock bajo"
+            value={dashboard.lowStockCount ?? '—'}
+            href="/inventario?stock=bajo"
+            colorClass="bg-amber-50 dark:bg-amber-900/30"
         />
     </div>
 

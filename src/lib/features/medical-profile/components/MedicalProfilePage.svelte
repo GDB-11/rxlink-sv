@@ -5,6 +5,10 @@
     import PatientProfileHeader from './PatientProfileHeader.svelte';
     import AllergiesSection from './AllergiesSection.svelte';
     import DiagnosticsSection from './DiagnosticsSection.svelte';
+    import { DisclosuresSection } from '$lib/features/disclosures';
+    import { PatientPrivacyNoticeSection } from '$lib/features/privacy-notice';
+    import { ConsentsSection } from '$lib/features/consents';
+    import { CommunicationPreferencesSection } from '$lib/features/communication-preferences';
 
     interface Props {
         patientCode: string;
@@ -83,6 +87,24 @@
             {isNurse}
             appointmentCode={null}
         />
+
+        {#if !isNurse}
+            <hr class="border-stone-200 dark:border-stone-700" />
+
+            <CommunicationPreferencesSection {patientCode} />
+
+            <hr class="border-stone-200 dark:border-stone-700" />
+
+            <DisclosuresSection {patientCode} />
+
+            <hr class="border-stone-200 dark:border-stone-700" />
+
+            <PatientPrivacyNoticeSection {patientCode} />
+
+            <hr class="border-stone-200 dark:border-stone-700" />
+
+            <ConsentsSection {patientCode} />
+        {/if}
     {/if}
 
 </div>

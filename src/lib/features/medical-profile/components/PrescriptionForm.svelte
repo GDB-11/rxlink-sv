@@ -9,6 +9,7 @@
         prescriptionApi,
         type PrescriptionResponse,
         type MedicationLookupItem,
+        type StockStatus,
         type PrescriptionLookupItem
     } from '$lib/api/prescriptionApi';
     import { medicalProfile } from '../stores/medicalProfile.svelte';
@@ -78,7 +79,11 @@
     let touched = $state(false);
     let errors  = $state<{ validUntil?: string; lines?: string }>({});
 
-    const medicationOptions = $derived(medications.map(m => ({ value: m.code, label: m.name })));
+    const STOCK_SUFFIX: Record<StockStatus, string> = { InStock: '', Low: ' · stock bajo', Out: ' · sin stock' };
+    // Informative only: any enabled medication can be prescribed whatever its stock.
+    const medicationOptions = $derived(
+        medications.map(m => ({ value: m.code, label: m.name + STOCK_SUFFIX[m.stockStatus] }))
+    );
 
     function applyMedicationDefaults(index: number, code: string): void {
         const med = medications.find(m => m.code === code);

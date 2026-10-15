@@ -2,6 +2,7 @@
 
 import { appointmentApi, type AppointmentResponse } from '$lib/api/appointmentApi';
 import { prescriptionApi, type DoctorDraftPrescriptionResponse, type NurseDispensationResponse } from '$lib/api/prescriptionApi';
+import { inventoryApi } from '$lib/api/inventoryApi';
 import { todayIso } from '$lib/utils/date';
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
@@ -24,6 +25,11 @@ let _dispensations       = $state<NurseDispensationResponse[]>([]);
 let _nurseLoading        = $state(false);
 let _nurseError          = $state<string | null>(null);
 
+// ── Stock alerts (admin and nurse) ────────────────────────────────────────────
+
+/** Number of medications at or below their reorder level; null until loaded or if it could not be read. */
+let _lowStockCount = $state<number | null>(null);
+
 // ── Public store ──────────────────────────────────────────────────────────────
 
 export const dashboard = {
@@ -38,6 +44,8 @@ export const dashboard = {
     get doctorLoadingAppts() { return _doctorLoadingAppts; },
     get doctorLoadingDrafts(){ return _doctorLoadingDrafts; },
     get doctorError()        { return _doctorError; },
+
+    get lowStockCount()      { return _lowStockCount; },
 
     // Nurse
     get dispensations()      { return _dispensations; },
@@ -113,7 +121,16 @@ export const dashboard = {
         }
     },
 
+    async loadLowStock(): Promise<void> {
+        try {
+            _lowStockCount = (await inventoryApi.getLowStock()).length;
+        } catch {
+            _lowStockCount = null;
+        }
+    },
+
     reset(): void {
+        _lowStockCount       = null;
         _adminAppointments   = [];
         _adminLoadingAppts   = false;
         _adminError          = null;
