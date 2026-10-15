@@ -5,8 +5,14 @@ import { api } from './api';
 export interface InsuranceResponse {
     insuranceCode: string;
     name: string;
-    coveragePercentage: number;
+    /** Active in the shared catalog. */
     isActive: boolean;
+    /** Accepted by this partner. */
+    isEnabled: boolean;
+    defaultCoveragePercentage: number;
+    coveragePercentageOverride: number | null;
+    /** In force for this partner: the override when set, otherwise the default. */
+    coveragePercentage: number;
 }
 
 export interface InsurancePageResponse {
@@ -17,9 +23,18 @@ export interface InsurancePageResponse {
     totalPages: number;
 }
 
-export interface InsuranceRequestBody {
-    Name: string;
-    CoveragePercentage: number;
+export interface PartnerInsuranceResponse {
+    insuranceCode: string;
+    isEnabled: boolean;
+    coveragePercentageOverride: number | null;
+}
+
+/** Partial update: omitted fields keep their current value. */
+export interface PartnerInsuranceUpdate {
+    isEnabled?: boolean;
+    coveragePercentageOverride?: number;
+    /** Go back to the catalog default. */
+    clearCoverageOverride?: boolean;
 }
 
 export const insuranceApi = {
@@ -32,19 +47,7 @@ export const insuranceApi = {
         return api.get<InsurancePageResponse>(`/api/insurance?${params}`);
     },
 
-    create(body: InsuranceRequestBody): Promise<InsuranceResponse> {
-        return api.post<InsuranceResponse>('/api/insurance', body);
-    },
-
-    update(code: string, body: InsuranceRequestBody): Promise<InsuranceResponse> {
-        return api.put<InsuranceResponse>(`/api/insurance/${code}`, body);
-    },
-
-    deactivate(code: string): Promise<void> {
-        return api.patch<void>(`/api/insurance/${code}/deactivate`, {});
-    },
-
-    activate(code: string): Promise<void> {
-        return api.patch<void>(`/api/insurance/${code}/activate`, {});
+    updatePartner(code: string, body: PartnerInsuranceUpdate): Promise<PartnerInsuranceResponse> {
+        return api.patch<PartnerInsuranceResponse>(`/api/partner/insurances/${code}`, body);
     }
 };

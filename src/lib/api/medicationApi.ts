@@ -1,17 +1,22 @@
-// src/lib/api/medicationsApi.ts
+// src/lib/api/medicationApi.ts
 
 import { api } from './api';
 
 export interface MedicationResponse {
     medicationCode: string;
-    pharmaceuticalFormId: number;
+    pharmaceuticalFormCode: string;
     pharmaceuticalFormName: string;
-    administrationRouteId: number;
+    administrationRouteCode: string;
     administrationRouteName: string;
     genericName: string;
     commercialName: string | null;
     concentration: string;
+    /** Active in the shared catalog. */
     isActive: boolean;
+    /** Enabled by this partner. */
+    isEnabled: boolean;
+    reorderLevel: number | null;
+    stockQuantity: number | null;
 }
 
 export interface MedicationPageResponse {
@@ -22,12 +27,16 @@ export interface MedicationPageResponse {
     totalPages: number;
 }
 
-export interface MedicationRequestBody {
-    PharmaceuticalFormId: number;
-    AdministrationRouteId: number;
-    GenericName: string;
-    CommercialName?: string | null;
-    Concentration: string;
+export interface PartnerMedicationResponse {
+    medicationCode: string;
+    isEnabled: boolean;
+    reorderLevel: number | null;
+}
+
+/** Partial update: omitted fields keep their current value. */
+export interface PartnerMedicationUpdate {
+    isEnabled?: boolean;
+    reorderLevel?: number;
 }
 
 export const medicationApi = {
@@ -40,19 +49,7 @@ export const medicationApi = {
         return api.get<MedicationPageResponse>(`/api/medication?${params}`);
     },
 
-    create(body: MedicationRequestBody): Promise<MedicationResponse> {
-        return api.post<MedicationResponse>('/api/medication', body);
-    },
-
-    update(code: string, body: MedicationRequestBody): Promise<MedicationResponse> {
-        return api.put<MedicationResponse>(`/api/medication/${code}`, body);
-    },
-
-    deactivate(code: string): Promise<void> {
-        return api.patch<void>(`/api/medication/${code}/deactivate`, {});
-    },
-
-    activate(code: string): Promise<void> {
-        return api.patch<void>(`/api/medication/${code}/activate`, {});
+    updatePartner(code: string, body: PartnerMedicationUpdate): Promise<PartnerMedicationResponse> {
+        return api.patch<PartnerMedicationResponse>(`/api/partner/medications/${code}`, body);
     }
 };

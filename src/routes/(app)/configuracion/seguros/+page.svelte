@@ -1,72 +1,25 @@
 <!-- src/routes/(app)/configuracion/seguros/+page.svelte -->
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { IconPlus } from '@tabler/icons-svelte';
     import { insurances } from '$lib/features/insurances';
-    import type { InsuranceResponse, InsuranceRequestBody } from '$lib/api/insuranceApi';
+    import type { InsuranceResponse } from '$lib/api/insuranceApi';
+    import ErrorAlert from '$lib/components/ui/ErrorAlert.svelte';
     import InsuranceSearchBar from '$lib/features/insurances/components/InsuranceSearchBar.svelte';
     import InsuranceTable from '$lib/features/insurances/components/InsuranceTable.svelte';
     import InsurancePagination from '$lib/features/insurances/components/InsurancePagination.svelte';
-    import InsuranceForm from '$lib/features/insurances/components/InsuranceForm.svelte';
-    import DeactivateConfirmModal from '$lib/features/insurances/components/DeactivateConfirmModal.svelte';
-    import ActivateConfirmModal from '$lib/features/insurances/components/ActivateConfirmModal.svelte';
-
-    let formOpen = $state(false);
-    let formMode = $state<'create' | 'edit'>('create');
-    let editTarget = $state<InsuranceResponse | null>(null);
-
-    let confirmOpen = $state(false);
-    let deactivateTarget = $state<InsuranceResponse | null>(null);
-
-    let activateOpen = $state(false);
-    let activateTarget = $state<InsuranceResponse | null>(null);
 
     onMount(() => insurances.loadPage());
 
-    function openCreate() {
-        editTarget = null;
-        formMode = 'create';
-        insurances.clearSubmitError();
-        formOpen = true;
+    function handleToggle(item: InsuranceResponse, enabled: boolean) {
+        return insurances.updatePartner(item.insuranceCode, { isEnabled: enabled });
     }
 
-    function openEdit(item: InsuranceResponse) {
-        editTarget = item;
-        formMode = 'edit';
-        insurances.clearSubmitError();
-        formOpen = true;
+    function handleCoverage(item: InsuranceResponse, value: number) {
+        return insurances.updatePartner(item.insuranceCode, { coveragePercentageOverride: value });
     }
 
-    function openDeactivate(item: InsuranceResponse) {
-        deactivateTarget = item;
-        insurances.clearSubmitError();
-        confirmOpen = true;
-    }
-
-    function openActivate(item: InsuranceResponse) {
-        activateTarget = item;
-        insurances.clearSubmitError();
-        activateOpen = true;
-    }
-
-    async function handleFormSubmit(data: InsuranceRequestBody) {
-        const success =
-            formMode === 'create'
-                ? await insurances.create(data)
-                : await insurances.update(editTarget!.insuranceCode, data);
-        if (success) formOpen = false;
-    }
-
-    async function handleDeactivate() {
-        if (!deactivateTarget) return;
-        const success = await insurances.deactivate(deactivateTarget.insuranceCode);
-        if (success) confirmOpen = false;
-    }
-
-    async function handleActivate() {
-        if (!activateTarget) return;
-        const success = await insurances.activate(activateTarget.insuranceCode);
-        if (success) activateOpen = false;
+    function handleClearCoverage(item: InsuranceResponse) {
+        return insurances.updatePartner(item.insuranceCode, { clearCoverageOverride: true });
     }
 </script>
 
@@ -75,29 +28,16 @@
 </svelte:head>
 
 <!-- Page header -->
-<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-    <div>
-        <h1
-            class="text-2xl font-semibold text-stone-900 dark:text-stone-50"
-            style="font-family: 'Instrument Serif', serif;"
-        >
-            Seguros
-        </h1>
-        <p class="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
-            Gestión del catálogo de seguros y su porcentaje de cobertura
-        </p>
-    </div>
-
-    <button
-        type="button"
-        onclick={openCreate}
-        class="inline-flex cursor-pointer items-center gap-2 self-start rounded-lg bg-teal-500 px-4 py-2
-               text-sm font-medium text-white transition-colors
-               hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700"
+<div class="mb-6">
+    <h1
+        class="text-2xl font-semibold text-stone-900 dark:text-stone-50"
+        style="font-family: 'Instrument Serif', serif;"
     >
-        <IconPlus size={16} aria-hidden="true" />
-        Nuevo seguro
-    </button>
+        Seguros aceptados
+    </h1>
+    <p class="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
+        Catálogo compartido: elige los seguros que acepta tu centro y, si hace falta, ajusta su cobertura
+    </p>
 </div>
 
 <!-- Search bar -->
@@ -108,6 +48,11 @@
         onsearch={(v) => insurances.setSearch(v)}
     />
 </div>
+
+<!-- Save error -->
+{#if insurances.submitError}
+    <div class="mb-4"><ErrorAlert message={insurances.submitError} /></div>
+{/if}
 
 <!-- Load error -->
 {#if insurances.error}
@@ -121,9 +66,10 @@
 <InsuranceTable
     items={insurances.items}
     loading={insurances.loading}
-    onEdit={openEdit}
-    onDeactivate={openDeactivate}
-    onActivate={openActivate}
+    busy={insurances.submitting}
+    onToggle={handleToggle}
+    onCoverage={handleCoverage}
+    onClearCoverage={handleClearCoverage}
 />
 
 <!-- Pagination -->
@@ -139,34 +85,3 @@
         />
     </div>
 {/if}
-
-<!-- Create / Edit modal -->
-<InsuranceForm
-    open={formOpen}
-    mode={formMode}
-    initial={editTarget}
-    submitting={insurances.submitting}
-    error={insurances.submitError}
-    onsubmit={handleFormSubmit}
-    oncancel={() => (formOpen = false)}
-/>
-
-<!-- Deactivate confirmation modal -->
-<DeactivateConfirmModal
-    open={confirmOpen}
-    insuranceName={deactivateTarget?.name ?? ''}
-    submitting={insurances.submitting}
-    error={insurances.submitError}
-    onconfirm={handleDeactivate}
-    oncancel={() => (confirmOpen = false)}
-/>
-
-<!-- Activate confirmation modal -->
-<ActivateConfirmModal
-    open={activateOpen}
-    insuranceName={activateTarget?.name ?? ''}
-    submitting={insurances.submitting}
-    error={insurances.submitError}
-    onconfirm={handleActivate}
-    oncancel={() => (activateOpen = false)}
-/>

@@ -1,6 +1,6 @@
 // src/lib/features/specialties/stores/specialties.svelte.ts
 
-import { specialtyApi, type SpecialtyResponse, type SpecialtyRequestBody } from '$lib/api/specialtyApi';
+import { specialtyApi, type SpecialtyResponse, type PartnerSpecialtyUpdate } from '$lib/api/specialtyApi';
 
 let _items = $state<SpecialtyResponse[]>([]);
 let _totalCount = $state(0);
@@ -51,60 +51,20 @@ export const specialties = {
         await this.loadPage();
     },
 
-    async create(body: SpecialtyRequestBody): Promise<boolean> {
+    /** Applies a partner-side change and patches the row in place (no page reload). */
+    async updatePartner(code: string, body: PartnerSpecialtyUpdate): Promise<boolean> {
         _submitting = true;
         _submitError = null;
         try {
-            await specialtyApi.create(body);
-            await this.loadPage();
-            return true;
-        } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al crear especialidad.';
-            return false;
-        } finally {
-            _submitting = false;
-        }
-    },
-
-    async update(code: string, body: SpecialtyRequestBody): Promise<boolean> {
-        _submitting = true;
-        _submitError = null;
-        try {
-            await specialtyApi.update(code, body);
-            await this.loadPage();
+            const saved = await specialtyApi.updatePartner(code, body);
+            _items = _items.map((m) =>
+                m.specialtyCode === code
+                    ? { ...m, isEnabled: saved.isEnabled, priceInPerson: saved.priceInPerson, priceVirtual: saved.priceVirtual }
+                    : m
+            );
             return true;
         } catch (err) {
             _submitError = err instanceof Error ? err.message : 'Error al actualizar especialidad.';
-            return false;
-        } finally {
-            _submitting = false;
-        }
-    },
-
-    async deactivate(code: string): Promise<boolean> {
-        _submitting = true;
-        _submitError = null;
-        try {
-            await specialtyApi.deactivate(code);
-            await this.loadPage();
-            return true;
-        } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al desactivar especialidad.';
-            return false;
-        } finally {
-            _submitting = false;
-        }
-    },
-
-    async activate(code: string): Promise<boolean> {
-        _submitting = true;
-        _submitError = null;
-        try {
-            await specialtyApi.activate(code);
-            await this.loadPage();
-            return true;
-        } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al activar especialidad.';
             return false;
         } finally {
             _submitting = false;

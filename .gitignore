@@ -19,3 +19,17 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+capitulo1.txt
+capitulo2.txt
+.gitignore
+casos-de-uso.md
+diagramas-secuencia.md
+gantt-tareas.md
+Grupo 2 - Informe de Proyecto - MD.md
+introduccion.txt
+medical-profile-plan.md
+rxlink-sv.tar
+/docs
+/scripts
+/deploy
+DEPLOY.md

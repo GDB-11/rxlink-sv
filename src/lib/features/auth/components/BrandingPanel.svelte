@@ -1,11 +1,11 @@
 <!-- src/lib/features/auth/components/BrandingPanel.svelte -->
 <script lang="ts">
 	import BrandCopyright from '$lib/components/ui/BrandCopyright.svelte';
-	import BrandLogo from '$lib/components/ui/BrandLogo.svelte';
 	import BrandQuote from '$lib/components/ui/BrandQuote.svelte';
 	import CrossPattern from '$lib/components/ui/CrossPattern.svelte';
 	import DecorativeRings from '$lib/components/ui/DecorativeRings.svelte';
 	import FeatureList from '$lib/components/ui/FeatureList.svelte';
+	import { PartnerLogo, partner } from '$lib/features/partner';
 
 	const features = [
 		'Gestión segura de recetas médicas',
@@ -26,7 +26,7 @@
 
 	<!-- Logo -->
 	<div class="relative z-10 space-y-1.5">
-		<BrandLogo variant="light" size="lg" />
+		<PartnerLogo variant="light" size="lg" />
 		<p class="text-sm tracking-wide text-teal-400/80">Sistema clínico de recetas</p>
 	</div>
 
@@ -36,5 +36,5 @@
 		<FeatureList items={features} />
 	</div>
 
-	<BrandCopyright />
+	<BrandCopyright name={partner.displayName} />
 </div>

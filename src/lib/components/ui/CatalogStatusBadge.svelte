@@ -1,4 +1,4 @@
-<!-- src/lib/features/specialties/components/SpecialtyStatusBadge.svelte -->
+<!-- src/lib/components/ui/CatalogStatusBadge.svelte -->
 <script lang="ts">
     interface Props {
         isActive: boolean;

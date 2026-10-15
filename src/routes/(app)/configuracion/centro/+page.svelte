@@ -2,10 +2,12 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { clinic, ClinicForm } from '$lib/features/clinic';
+    import { partner, PartnerIdentityCard } from '$lib/features/partner';
 
     onMount(() => {
         clinic.clearFeedback();
         clinic.load();
+        partner.load();
     });
 </script>
 
@@ -25,6 +27,10 @@
             Dirección y datos de contacto del centro de atención
         </p>
     </div>
+
+    {#if partner.data}
+        <PartnerIdentityCard identity={partner.data} />
+    {/if}
 
     {#if clinic.loading && !clinic.data}
         <div class="h-96 animate-pulse rounded-xl bg-stone-200 dark:bg-stone-700"></div>

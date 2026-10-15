@@ -1,17 +1,18 @@
 <!-- src/lib/features/medications/components/MedicationTable.svelte -->
 <script lang="ts">
-    import { IconPencil, IconBan, IconCircleCheck } from '@tabler/icons-svelte';
     import type { MedicationResponse } from '$lib/api/medicationApi';
-    import MedicationStatusBadge from './MedicationStatusBadge.svelte';
+    import ToggleSwitch from '$lib/components/ui/ToggleSwitch.svelte';
+    import CatalogStatusBadge from '$lib/components/ui/CatalogStatusBadge.svelte';
+    import InlineNumberEditor from '$lib/components/ui/InlineNumberEditor.svelte';
 
     interface Props {
         items: MedicationResponse[];
         loading: boolean;
-        onEdit: (item: MedicationResponse) => void;
-        onDeactivate: (item: MedicationResponse) => void;
-        onActivate: (item: MedicationResponse) => void;
+        busy?: boolean;
+        onToggle: (item: MedicationResponse, enabled: boolean) => void;
+        onReorderLevel: (item: MedicationResponse, value: number) => Promise<boolean>;
     }
-    let { items, loading, onEdit, onDeactivate, onActivate }: Props = $props();
+    let { items, loading, busy = false, onToggle, onReorderLevel }: Props = $props();
 
     const skeletonRows = [1, 2, 3, 4, 5];
 </script>
@@ -36,10 +37,16 @@
                     Concentración
                 </th>
                 <th class="px-4 py-3 text-left font-medium text-stone-600 dark:text-stone-400">
-                    Estado
+                    Catálogo
                 </th>
-                <th class="px-4 py-3 text-right font-medium text-stone-600 dark:text-stone-400">
-                    Acciones
+                <th class="hidden px-4 py-3 text-left font-medium text-stone-600 dark:text-stone-400 md:table-cell">
+                    Stock
+                </th>
+                <th class="hidden px-4 py-3 text-left font-medium text-stone-600 dark:text-stone-400 md:table-cell">
+                    Reposición
+                </th>
+                <th class="px-4 py-3 text-left font-medium text-stone-600 dark:text-stone-400">
+                    Habilitado
                 </th>
             </tr>
         </thead>
@@ -65,12 +72,20 @@
                         <td class="px-4 py-3">
                             <div class="h-5 w-14 animate-pulse rounded-full bg-stone-200 dark:bg-stone-700"></div>
                         </td>
-                        <td class="px-4 py-3"></td>
+                        <td class="hidden px-4 py-3 md:table-cell">
+                            <div class="h-4 w-10 animate-pulse rounded bg-stone-200 dark:bg-stone-700"></div>
+                        </td>
+                        <td class="hidden px-4 py-3 md:table-cell">
+                            <div class="h-4 w-10 animate-pulse rounded bg-stone-200 dark:bg-stone-700"></div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="h-5 w-9 animate-pulse rounded-full bg-stone-200 dark:bg-stone-700"></div>
+                        </td>
                     </tr>
                 {/each}
             {:else if items.length === 0}
                 <tr>
-                    <td colspan="7" class="px-4 py-12 text-center">
+                    <td colspan="9" class="px-4 py-12 text-center">
                         <p class="text-sm text-stone-500 dark:text-stone-400">
                             No se encontraron medicamentos.
                         </p>
@@ -95,44 +110,27 @@
                             {item.concentration}
                         </td>
                         <td class="px-4 py-3">
-                            <MedicationStatusBadge isActive={item.isActive} />
+                            <CatalogStatusBadge isActive={item.isActive} />
+                        </td>
+                        <td class="hidden px-4 py-3 text-stone-600 dark:text-stone-400 md:table-cell">
+                            {item.stockQuantity ?? '—'}
+                        </td>
+                        <td class="hidden px-4 py-3 md:table-cell">
+                            <InlineNumberEditor
+                                value={item.reorderLevel}
+                                label={item.genericName}
+                                field="nivel de reposición"
+                                disabled={busy}
+                                onsave={(v) => onReorderLevel(item, v)}
+                            />
                         </td>
                         <td class="px-4 py-3">
-                            <div class="flex items-center justify-end gap-1">
-                                <button
-                                    type="button"
-                                    onclick={() => onEdit(item)}
-                                    class="cursor-pointer rounded-lg p-1.5 text-stone-500 transition-colors
-                                           hover:bg-teal-50 hover:text-teal-700
-                                           dark:text-stone-400 dark:hover:bg-teal-900/30 dark:hover:text-teal-400"
-                                    aria-label="Editar {item.genericName}"
-                                >
-                                    <IconPencil size={16} aria-hidden="true" />
-                                </button>
-                                {#if item.isActive}
-                                    <button
-                                        type="button"
-                                        onclick={() => onDeactivate(item)}
-                                        class="cursor-pointer rounded-lg p-1.5 text-stone-500 transition-colors
-                                               hover:bg-rose-50 hover:text-rose-700
-                                               dark:text-stone-400 dark:hover:bg-rose-900/30 dark:hover:text-rose-400"
-                                        aria-label="Desactivar {item.genericName}"
-                                    >
-                                        <IconBan size={16} aria-hidden="true" />
-                                    </button>
-                                {:else}
-                                    <button
-                                        type="button"
-                                        onclick={() => onActivate(item)}
-                                        class="cursor-pointer rounded-lg p-1.5 text-stone-500 transition-colors
-                                               hover:bg-teal-50 hover:text-teal-700
-                                               dark:text-stone-400 dark:hover:bg-teal-900/30 dark:hover:text-teal-400"
-                                        aria-label="Activar {item.genericName}"
-                                    >
-                                        <IconCircleCheck size={16} aria-hidden="true" />
-                                    </button>
-                                {/if}
-                            </div>
+                            <ToggleSwitch
+                                checked={item.isEnabled}
+                                label="Habilitar {item.genericName}"
+                                disabled={busy || (!item.isActive && !item.isEnabled)}
+                                onchange={(v) => onToggle(item, v)}
+                            />
                         </td>
                     </tr>
                 {/each}

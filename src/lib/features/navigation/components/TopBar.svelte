@@ -14,6 +14,7 @@
     } from '@tabler/icons-svelte';
     import { ThemeToggle } from '$lib/features/theme';
     import { auth } from '$lib/features/auth';
+    import { PartnerLogo } from '$lib/features/partner';
     import { navigation } from '../stores/navigation.svelte';
 
     interface Props {
@@ -70,18 +71,11 @@
     <!-- Logo -->
     <a
         href="/"
-        class="flex shrink-0 items-center gap-0.5 md:w-56 md:border-r
+        class="flex shrink-0 items-center md:w-56 md:border-r
                md:border-stone-200 md:pr-4 dark:md:border-stone-700"
         aria-label="Ir al inicio"
     >
-        <span
-            style="font-family: 'Instrument Serif', serif;"
-            class="text-2xl leading-none text-teal-600 italic dark:text-teal-400"
-        >Rx</span>
-        <span
-            style="font-family: 'Instrument Serif', serif;"
-            class="text-2xl leading-none text-stone-900 dark:text-stone-50"
-        >Link</span>
+        <PartnerLogo variant="color" size="xs" />
     </a>
 
     <!-- Module tabs (topbar navigation) -->

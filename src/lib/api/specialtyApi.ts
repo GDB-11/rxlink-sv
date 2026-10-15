@@ -5,7 +5,10 @@ import { api } from './api';
 export interface SpecialtyResponse {
     specialtyCode: string;
     name: string;
+    /** Active in the shared catalog. */
     isActive: boolean;
+    /** Offered by this partner. */
+    isEnabled: boolean;
     priceInPerson: number;
     priceVirtual: number;
 }
@@ -18,10 +21,18 @@ export interface SpecialtyPageResponse {
     totalPages: number;
 }
 
-export interface SpecialtyRequestBody {
-    Name: string;
-    PriceInPerson: number;
-    PriceVirtual: number;
+export interface PartnerSpecialtyResponse {
+    specialtyCode: string;
+    isEnabled: boolean;
+    priceInPerson: number;
+    priceVirtual: number;
+}
+
+/** Partial update: omitted fields keep their current value. */
+export interface PartnerSpecialtyUpdate {
+    isEnabled?: boolean;
+    priceInPerson?: number;
+    priceVirtual?: number;
 }
 
 export const specialtyApi = {
@@ -34,19 +45,7 @@ export const specialtyApi = {
         return api.get<SpecialtyPageResponse>(`/api/specialty?${params}`);
     },
 
-    create(body: SpecialtyRequestBody): Promise<SpecialtyResponse> {
-        return api.post<SpecialtyResponse>('/api/specialty', body);
-    },
-
-    update(code: string, body: SpecialtyRequestBody): Promise<SpecialtyResponse> {
-        return api.put<SpecialtyResponse>(`/api/specialty/${code}`, body);
-    },
-
-    deactivate(code: string): Promise<void> {
-        return api.patch<void>(`/api/specialty/${code}/deactivate`, {});
-    },
-
-    activate(code: string): Promise<void> {
-        return api.patch<void>(`/api/specialty/${code}/activate`, {});
+    updatePartner(code: string, body: PartnerSpecialtyUpdate): Promise<PartnerSpecialtyResponse> {
+        return api.patch<PartnerSpecialtyResponse>(`/api/partner/specialties/${code}`, body);
     }
 };

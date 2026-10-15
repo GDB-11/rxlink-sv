@@ -1,6 +1,6 @@
 // src/lib/features/insurances/stores/insurances.svelte.ts
 
-import { insuranceApi, type InsuranceResponse, type InsuranceRequestBody } from '$lib/api/insuranceApi';
+import { insuranceApi, type InsuranceResponse, type PartnerInsuranceUpdate } from '$lib/api/insuranceApi';
 
 let _items = $state<InsuranceResponse[]>([]);
 let _totalCount = $state(0);
@@ -51,60 +51,25 @@ export const insurances = {
         await this.loadPage();
     },
 
-    async create(body: InsuranceRequestBody): Promise<boolean> {
+    /** Applies a partner-side change and patches the row in place (no page reload). */
+    async updatePartner(code: string, body: PartnerInsuranceUpdate): Promise<boolean> {
         _submitting = true;
         _submitError = null;
         try {
-            await insuranceApi.create(body);
-            await this.loadPage();
-            return true;
-        } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al crear seguro.';
-            return false;
-        } finally {
-            _submitting = false;
-        }
-    },
-
-    async update(code: string, body: InsuranceRequestBody): Promise<boolean> {
-        _submitting = true;
-        _submitError = null;
-        try {
-            await insuranceApi.update(code, body);
-            await this.loadPage();
+            const saved = await insuranceApi.updatePartner(code, body);
+            _items = _items.map((m) =>
+                m.insuranceCode === code
+                    ? {
+                          ...m,
+                          isEnabled: saved.isEnabled,
+                          coveragePercentageOverride: saved.coveragePercentageOverride,
+                          coveragePercentage: saved.coveragePercentageOverride ?? m.defaultCoveragePercentage
+                      }
+                    : m
+            );
             return true;
         } catch (err) {
             _submitError = err instanceof Error ? err.message : 'Error al actualizar seguro.';
-            return false;
-        } finally {
-            _submitting = false;
-        }
-    },
-
-    async deactivate(code: string): Promise<boolean> {
-        _submitting = true;
-        _submitError = null;
-        try {
-            await insuranceApi.deactivate(code);
-            await this.loadPage();
-            return true;
-        } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al desactivar seguro.';
-            return false;
-        } finally {
-            _submitting = false;
-        }
-    },
-
-    async activate(code: string): Promise<boolean> {
-        _submitting = true;
-        _submitError = null;
-        try {
-            await insuranceApi.activate(code);
-            await this.loadPage();
-            return true;
-        } catch (err) {
-            _submitError = err instanceof Error ? err.message : 'Error al activar seguro.';
             return false;
         } finally {
             _submitting = false;

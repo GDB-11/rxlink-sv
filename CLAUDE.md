@@ -69,3 +69,12 @@ Suspendido → Activo      (doctor reactivates)
 Suspendido → Cancelado   (doctor cancels — irreversible)
 Suspendido → Caducado    (ValidUntil exceeded, not dispensed)
 Dispensado → Finalizado  (ValidUntil exceeded, already dispensed)
+
+
+## AI test database
+
+To boot the API or run SQL for real, agents may use the disposable local Postgres described in `/home/Gianfranco/repos/rxlink-sv/docs/ai-test-database.md` (container `pgtest`, port 55432, synthetic data only, approved by the owner). Never use the Neon connection strings or the user's own Postgres on 5432.
+
+## Verifying changes end to end
+
+After changing the API, DB migrations or the frontend, verify for real instead of stopping at `pnpm check`/unit tests: run `scripts/devstack/up.sh` (disposable DB + API + frontend), drive the UI with the Playwright scripts in `scripts/devstack/browser`, and run `scripts/devstack/down.sh` when done. Recipe and rules: `docs/ai-test-database.md` ("Full-stack check").
