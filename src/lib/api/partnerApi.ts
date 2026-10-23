@@ -21,7 +21,7 @@ export interface PublicPartnerConfigResponse {
 
 export const partnerApi = {
     getPublicConfig(): Promise<PublicPartnerConfigResponse> {
-        return api.get<PublicPartnerConfigResponse>('/api/partner/config/public');
+        return api.get<PublicPartnerConfigResponse>('/api/v1/partner/config/public');
     },
 
     /** The API returns a relative logo path; the image is served by the API, not by this app. */
